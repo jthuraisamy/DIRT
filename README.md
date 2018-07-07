@@ -1,7 +1,7 @@
 # DIRT: Driver Initial Reconnaissance Tool
-This tool can be used to get an initial assessment of drivers installed on a Windows system (e.g. master images developed by OEMs or enterprises). It's supposed to make it easier to find low-hanging fruit and provide some help with deep-dive binary analysis.
+This tool can be used to get an initial assessment of drivers installed on a Windows system (e.g. master images developed by OEMs or enterprises). It's supposed to make it easier to find targets, low-hanging fruit and provide some help with deep-dive binary analysis.
 
-**Currently unstable, undergoing active development.**
+🚧 **Currently unstable, undergoing active development.** 🚧
 
 ## Planned Features
 
@@ -16,7 +16,7 @@ This tool can be used to get an initial assessment of drivers installed on a Win
 
 ## Alternative Tools
 
-Currently a combination of DeviceTree, WinObjEx64, and WinDbg are used. It's more of a tedious manual process that doesn't scale easily, so DIRT just makes it more convenient.
+Currently a combination of DeviceTree, WinObjEx64, and WinDbg are used. It's more of a tedious manual process that doesn't scale easily, so DIRT just attempts to make it more convenient.
 
 ## Authorship
 
