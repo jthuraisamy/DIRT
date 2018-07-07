@@ -18,4 +18,8 @@ Current combination of DeviceTree, WinObj, and WinDbg, but it's more of a tediou
 
 ## Authorship
 
-The code is heavily derived from the [WinObjEx64](https://github.com/hfiref0x/WinObjEx64) project by [@hFireF0X](https://twitter.com/hfiref0x?lang=en).
+Jackson Thuraisamy (2018). The code is heavily derived from the [WinObjEx64](https://github.com/hfiref0x/WinObjEx64) project by [@hFireF0X](https://twitter.com/hfiref0x?lang=en).
+
+## Licence
+
+MIT
