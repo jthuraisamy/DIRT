@@ -34,7 +34,9 @@ This should compile with Visual Studio 2017 or greater.
 
 1. Enable debug mode with `bcdedit -debug on` with an administrative Command Prompt.
 2. Place `kldbgdrv.sys` (found with WinDbg) in the same directory as `DIRT.exe`.
-3. Run `DIRT.exe` with administrative privileges.
+3. Run `DIRT.exe > output.csv` with administrative privileges.
+
+![](https://i.imgur.com/lTefDUR.png)
 
 ## Authors
 
