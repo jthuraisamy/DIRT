@@ -8,3 +8,5 @@ namespace DIRT
 	class DebugDriver;
 	class ObjectManager;
 }
+
+#define BUFFER_SIZE 0x1000

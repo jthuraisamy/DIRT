@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-#define BUFFER_SIZE 0x800
-
 DIRT::Main::Main()
 {
 	HMODULE _hModule = LoadLibrary(_T("ntdll.dll"));
@@ -25,76 +23,126 @@ DIRT::Main::Main()
 	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(_hModule, "RtlInitUnicodeString");
 }
 
+void DIRT::Main::printCSV()
+{
+	cout << "SymbolicLink,DeviceObjectPath,DriverObjectPath,DriverFilePath,DriverDescription,InsecureDACL" << endl;
+
+	vector<POBJECT_DIRECTORY_INFORMATION> globalObjects = om.getDirectoryObjects(L"\\Global??");
+
+	for (POBJECT_DIRECTORY_INFORMATION pObjDirInfo : globalObjects)
+	{
+		if (wcscmp(pObjDirInfo->TypeName.Buffer, L"SymbolicLink") == 0)
+		{
+			// Print SymbolicLink.
+			wcout << L"\\\\.\\Global\\" << pObjDirInfo->Name.Buffer << ",";
+
+			// Print DeviceObjectPath.
+			HANDLE hDirectory = om.getObjectDirectoryHandle(L"\\Global??");
+			PWCHAR pDeviceObjectPath = getLinkTarget(hDirectory, &pObjDirInfo->Name);
+			if (pDeviceObjectPath != nullptr)
+			{
+				wcout << pDeviceObjectPath << ",";
+
+				// Print DriverObjectPath.
+				PWCHAR pDeviceName = pDeviceObjectPath + 8;
+				PWCHAR pDriverName = om.getDriverName(L"\\Device", pDeviceName);
+				if (pDriverName != nullptr)
+				{
+					wcout << L"\\Driver\\" << pDriverName << ",";
+
+					// Print DriverFilePath.
+					LPQUERY_SERVICE_CONFIG pDriverServiceConfig = getDriverServiceConfig(pDriverName);
+					if (pDriverServiceConfig != nullptr)
+					{
+						wcout << pDriverServiceConfig->lpBinaryPathName << ",";
+						wcout << pDriverServiceConfig->lpDisplayName << ",";
+					}
+					else
+					{
+						wcout << ",,";
+					}
+				}
+				else
+				{
+					wcout << ",,,";
+				}
+
+				// Print InsecureDACL.
+				ULONG ulEntryCount = 0;
+				EXPLICIT_ACCESS *eaEntries;
+				getObjectDACL(pDeviceObjectPath, &eaEntries, &ulEntryCount);
+				wcout << isObjectPubliclyWritable(&eaEntries, ulEntryCount) << endl;
+			}
+			else
+			{
+				wcout << ",,,," << endl;
+			}
+		}
+	}
+}
+
 LPQUERY_SERVICE_CONFIG DIRT::Main::getDriverServiceConfig(const PWCHAR driverServiceName)
 {
-	LPQUERY_SERVICE_CONFIG psc = nullptr;
+	LPQUERY_SERVICE_CONFIG pServiceConfig = nullptr;
 	SC_HANDLE schManager = NULL;
 	SC_HANDLE schService = NULL;
 
 	schManager = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT | SC_MANAGER_ENUMERATE_SERVICE);
 	if (schManager == NULL)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	schService = OpenService(schManager, driverServiceName, SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | SERVICE_ENUMERATE_DEPENDENTS);
 	if (schService == NULL)
 	{
-		std::wcout << ",,";
 		CloseServiceHandle(schManager);
-		return NULL;
+		return nullptr;
 	}
 
-	DWORD bytesNeeded;
+	// Get size of QUERY_SERVICE_CONFIG.
+	DWORD bytesNeeded = 0;
 	QueryServiceConfig(schService, NULL, 0, &bytesNeeded);
 
-	psc = (LPQUERY_SERVICE_CONFIG)malloc(bytesNeeded);
-	QueryServiceConfig(schService, psc, bytesNeeded, &bytesNeeded);
+	// Populate pServiceConfig.
+	pServiceConfig = (LPQUERY_SERVICE_CONFIG)malloc(bytesNeeded);
+	QueryServiceConfig(schService, pServiceConfig, bytesNeeded, &bytesNeeded);
 
-	std::wcout << psc->lpBinaryPathName << ",";
-	std::wcout << psc->lpDisplayName << ",";
-	//std::wcout << psc->dwServiceType << ",";
-	//std::wcout << psc->dwStartType << ",";
-	//ToDo: get current state (started, stopped, etc.).
-
-	free(psc);
 	CloseServiceHandle(schService);
 	CloseServiceHandle(schManager);
 
-	return psc;
+	return pServiceConfig;
 }
 
-int DIRT::Main::getLinkTarget(const HANDLE hDirectory, const PUNICODE_STRING objectName, _Out_ PWCHAR wcTargetName)
+PWCHAR DIRT::Main::getLinkTarget(const HANDLE hDirectory, const PUNICODE_STRING objectName)
 {
 	OBJECT_ATTRIBUTES object_attributes;
 	InitializeObjectAttributes(&object_attributes, objectName, OBJ_CASE_INSENSITIVE, hDirectory, NULL);
 
 	HANDLE hLink = NULL;
-	NTSTATUS status_code = NtOpenSymbolicLinkObject(&hLink, SYMBOLIC_LINK_QUERY, &object_attributes);
+	NTSTATUS nsCode = NtOpenSymbolicLinkObject(&hLink, SYMBOLIC_LINK_QUERY, &object_attributes);
 
-	if (status_code != 0)
-		return ERROR_UNIDENTIFIED_ERROR;
+	if (nsCode != STATUS_SUCCESS)
+		throw nsCode;
 
-	ULONG bufferSize;
+	ULONG bufferSize = 0;
 	UNICODE_STRING usTargetName;
 	RtlSecureZeroMemory(&usTargetName, sizeof(UNICODE_STRING));
 
-	status_code = NtQuerySymbolicLinkObject(hLink, &usTargetName, &bufferSize);
+	nsCode = NtQuerySymbolicLinkObject(hLink, &usTargetName, &bufferSize);
 
-	if (status_code == STATUS_BUFFER_TOO_SMALL)
+	if (nsCode == STATUS_BUFFER_TOO_SMALL)
 	{
-		usTargetName.Buffer = (PWSTR)malloc(bufferSize);
+		usTargetName.Buffer = (PWCHAR)malloc(bufferSize);
 		usTargetName.Length = (USHORT)bufferSize;
 		usTargetName.MaximumLength = (USHORT)bufferSize;
 
-		status_code = NtQuerySymbolicLinkObject(hLink, &usTargetName, &bufferSize);
+		nsCode = NtQuerySymbolicLinkObject(hLink, &usTargetName, &bufferSize);
 	}
 
 	NtClose(hLink);
 
-	wcscpy(wcTargetName, usTargetName.Buffer);
-
-	return 0;
+	return usTargetName.Buffer;
 }
 
 int DIRT::Main::getObjectDACL(const PWCHAR wcPath, _Out_ PEXPLICIT_ACCESS* peaEntries, _Out_ PULONG pulEntryCount)
@@ -199,6 +247,8 @@ int DIRT::Main::getDeviceDriver(const PWCHAR pwcPath)
 int main()
 {
 	DIRT::Main dirt;
+
+	dirt.printCSV();
 
 	return 0;
 }

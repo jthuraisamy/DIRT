@@ -20,10 +20,11 @@ class DIRT::Main
 
 public:
 	DIRT::Main();
+	void                   printCSV();
 	LPQUERY_SERVICE_CONFIG getDriverServiceConfig(const PWCHAR driverServiceName);
 	bool                   isObjectPubliclyWritable(PEXPLICIT_ACCESS* peaEntries, const ULONG ulEntryCount);
 	int                    getObjectDACL(const PWCHAR path, _Out_ PEXPLICIT_ACCESS* peaEntries, _Out_ PULONG pulEntryCount);
-	int                    getLinkTarget(const HANDLE rootDirectory, const PUNICODE_STRING objectName, _Out_ PWCHAR wcTargetName);
+	PWCHAR                 getLinkTarget(const HANDLE rootDirectory, const PUNICODE_STRING objectName);
 	int                    getDeviceDriver(const PWCHAR pwcPath);
 
 private:

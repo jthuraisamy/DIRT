@@ -171,15 +171,18 @@ vector<POBJECT_DIRECTORY_INFORMATION> DIRT::ObjectManager::getDirectoryObjects(c
 	DWORD returnLength = 0;
 
 	NTSTATUS nsCode;
-	nsCode = NtQueryDirectoryObject(hDirectory, NULL, 0, TRUE, TRUE, &objectIndex, &returnLength);
-	POBJECT_DIRECTORY_INFORMATION odi = (POBJECT_DIRECTORY_INFORMATION)malloc(returnLength);
-	nsCode = NtQueryDirectoryObject(hDirectory, odi, returnLength, TRUE, TRUE, &objectIndex, &returnLength);
+	POBJECT_DIRECTORY_INFORMATION podi = nullptr;
 
-	if (nsCode != 0)
-		throw nsCode;
+	while (NtQueryDirectoryObject(hDirectory, NULL, 0, TRUE, FALSE, &objectIndex, &returnLength) == STATUS_BUFFER_TOO_SMALL)
+	{
+		podi = (POBJECT_DIRECTORY_INFORMATION)malloc(returnLength);
+		nsCode = NtQueryDirectoryObject(hDirectory, podi, returnLength, TRUE, FALSE, &objectIndex, &returnLength);
 
-	while (NtQueryDirectoryObject(hDirectory, odi, returnLength, TRUE, FALSE, &objectIndex, &returnLength) == 0)
-		objects.push_back(odi);
+		if (nsCode != STATUS_SUCCESS)
+			throw nsCode;
+		else
+			objects.push_back(podi);
+	}
 
 	return objects;
 }
