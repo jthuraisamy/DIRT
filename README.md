@@ -16,9 +16,9 @@ This tool can be used to get an initial assessment of drivers installed on a Win
 
 ## Alternative Tools
 
-Currently a combination of DeviceTree, WinObjEx64, and WinDbg are used. It's more of a tedious manual process that doesn't scale easily, so DIRT just attempts to make it more convenient.
+I've used a combination of DeviceTree, WinObjEx64, and WinDbg for these use-cases. It's more of a tedious manual process that doesn't scale easily, so DIRT just attempts to make it more convenient.
 
-## Authorship
+## Authors
 
 Jackson Thuraisamy (2018). The code is heavily derived from the [WinObjEx64](https://github.com/hfiref0x/WinObjEx64) project by [@hFireF0X](https://twitter.com/hfiref0x?lang=en).
 
