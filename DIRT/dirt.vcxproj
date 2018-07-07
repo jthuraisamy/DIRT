@@ -138,11 +138,18 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dbgdrv.h" />
+    <ClInclude Include="dirt.h" />
+    <ClInclude Include="global.h" />
+    <ClInclude Include="ntos.h" />
+    <ClInclude Include="objman.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DIRT.cpp" />
+    <ClCompile Include="dbgdrv.cpp" />
+    <ClCompile Include="dirt.cpp" />
+    <ClCompile Include="objman.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -19,6 +19,10 @@ I'm writing this tool to learn C++ and get an initial assessment of drivers inst
 
 I've used a combination of DeviceTree, WinObjEx64, and WinDbg for these use-cases. It's more of a tedious manual process that doesn't scale easily, so DIRT just attempts to make it more convenient.
 
+## Build and Usage
+
+This should compile with Visual Studio 2017 or greater. Currently it's not in a useable state, but to use place `kldbgdrv.sys` (found with WinDbg) in the same directory as `DIRT.exe` and run with administrative privileges.
+
 ## Authors
 
 Jackson Thuraisamy (2018). The code is heavily derived from the [WinObjEx64](https://github.com/hfiref0x/WinObjEx64) project by [@hFireF0X](https://twitter.com/hfiref0x?lang=en).
