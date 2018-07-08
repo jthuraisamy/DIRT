@@ -1368,53 +1368,53 @@ typedef enum _SYSTEM_INFORMATION_CLASS {
 ///*
 //** Boot Entry END
 //*/
-//
-///*
-//** File start
-//*/
-//
-//#define FILE_SUPERSEDE                          0x00000000
-//#define FILE_OPEN                               0x00000001
-//#define FILE_CREATE                             0x00000002
-//#define FILE_OPEN_IF                            0x00000003
-//#define FILE_OVERWRITE                          0x00000004
-//#define FILE_OVERWRITE_IF                       0x00000005
-//#define FILE_MAXIMUM_DISPOSITION                0x00000005
-//
-//#define FILE_DIRECTORY_FILE                     0x00000001
-//#define FILE_WRITE_THROUGH                      0x00000002
-//#define FILE_SEQUENTIAL_ONLY                    0x00000004
-//#define FILE_NO_INTERMEDIATE_BUFFERING          0x00000008
-//
-//#define FILE_SYNCHRONOUS_IO_ALERT               0x00000010
-//#define FILE_SYNCHRONOUS_IO_NONALERT            0x00000020
-//#define FILE_NON_DIRECTORY_FILE                 0x00000040
-//#define FILE_CREATE_TREE_CONNECTION             0x00000080
-//
-//#define FILE_COMPLETE_IF_OPLOCKED               0x00000100
-//#define FILE_NO_EA_KNOWLEDGE                    0x00000200
-//#define FILE_OPEN_FOR_RECOVERY                  0x00000400
-//#define FILE_RANDOM_ACCESS                      0x00000800
-//
-//#define FILE_DELETE_ON_CLOSE                    0x00001000
-//#define FILE_OPEN_BY_FILE_ID                    0x00002000
-//#define FILE_OPEN_FOR_BACKUP_INTENT             0x00004000
-//#define FILE_NO_COMPRESSION                     0x00008000
-//
-//#define FILE_RESERVE_OPFILTER                   0x00100000
-//#define FILE_OPEN_REPARSE_POINT                 0x00200000
-//#define FILE_OPEN_NO_RECALL                     0x00400000
-//#define FILE_OPEN_FOR_FREE_SPACE_QUERY          0x00800000
-//
-//
-//#define FILE_COPY_STRUCTURED_STORAGE            0x00000041
-//#define FILE_STRUCTURED_STORAGE                 0x00000441
-//
-//#define FILE_VALID_OPTION_FLAGS                 0x00ffffff
-//#define FILE_VALID_PIPE_OPTION_FLAGS            0x00000032
-//#define FILE_VALID_MAILSLOT_OPTION_FLAGS        0x00000032
-//#define FILE_VALID_SET_FLAGS                    0x00000036
-//
+
+/*
+** File start
+*/
+
+#define FILE_SUPERSEDE                          0x00000000
+#define FILE_OPEN                               0x00000001
+#define FILE_CREATE                             0x00000002
+#define FILE_OPEN_IF                            0x00000003
+#define FILE_OVERWRITE                          0x00000004
+#define FILE_OVERWRITE_IF                       0x00000005
+#define FILE_MAXIMUM_DISPOSITION                0x00000005
+
+#define FILE_DIRECTORY_FILE                     0x00000001
+#define FILE_WRITE_THROUGH                      0x00000002
+#define FILE_SEQUENTIAL_ONLY                    0x00000004
+#define FILE_NO_INTERMEDIATE_BUFFERING          0x00000008
+
+#define FILE_SYNCHRONOUS_IO_ALERT               0x00000010
+#define FILE_SYNCHRONOUS_IO_NONALERT            0x00000020
+#define FILE_NON_DIRECTORY_FILE                 0x00000040
+#define FILE_CREATE_TREE_CONNECTION             0x00000080
+
+#define FILE_COMPLETE_IF_OPLOCKED               0x00000100
+#define FILE_NO_EA_KNOWLEDGE                    0x00000200
+#define FILE_OPEN_FOR_RECOVERY                  0x00000400
+#define FILE_RANDOM_ACCESS                      0x00000800
+
+#define FILE_DELETE_ON_CLOSE                    0x00001000
+#define FILE_OPEN_BY_FILE_ID                    0x00002000
+#define FILE_OPEN_FOR_BACKUP_INTENT             0x00004000
+#define FILE_NO_COMPRESSION                     0x00008000
+
+#define FILE_RESERVE_OPFILTER                   0x00100000
+#define FILE_OPEN_REPARSE_POINT                 0x00200000
+#define FILE_OPEN_NO_RECALL                     0x00400000
+#define FILE_OPEN_FOR_FREE_SPACE_QUERY          0x00800000
+
+
+#define FILE_COPY_STRUCTURED_STORAGE            0x00000041
+#define FILE_STRUCTURED_STORAGE                 0x00000441
+
+#define FILE_VALID_OPTION_FLAGS                 0x00ffffff
+#define FILE_VALID_PIPE_OPTION_FLAGS            0x00000032
+#define FILE_VALID_MAILSLOT_OPTION_FLAGS        0x00000032
+#define FILE_VALID_SET_FLAGS                    0x00000036
+
 //typedef enum _FILE_INFORMATION_CLASS {
 //	FileDirectoryInformation = 1,
 //	FileFullDirectoryInformation,
@@ -3198,38 +3198,38 @@ typedef struct _DEVICE_OBJECT {
 //									   // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntosp
 //
 //} DEVOBJ_EXTENSION, *PDEVOBJ_EXTENSION;
-//
-//typedef struct _FAST_IO_DISPATCH {
-//	ULONG SizeOfFastIoDispatch;
-//	PVOID FastIoCheckIfPossible;
-//	PVOID FastIoRead;
-//	PVOID FastIoWrite;
-//	PVOID FastIoQueryBasicInfo;
-//	PVOID FastIoQueryStandardInfo;
-//	PVOID FastIoLock;
-//	PVOID FastIoUnlockSingle;
-//	PVOID FastIoUnlockAll;
-//	PVOID FastIoUnlockAllByKey;
-//	PVOID FastIoDeviceControl;
-//	PVOID AcquireFileForNtCreateSection;
-//	PVOID ReleaseFileForNtCreateSection;
-//	PVOID FastIoDetachDevice;
-//	PVOID FastIoQueryNetworkOpenInfo;
-//	PVOID AcquireForModWrite;
-//	PVOID MdlRead;
-//	PVOID MdlReadComplete;
-//	PVOID PrepareMdlWrite;
-//	PVOID MdlWriteComplete;
-//	PVOID FastIoReadCompressed;
-//	PVOID FastIoWriteCompressed;
-//	PVOID MdlReadCompleteCompressed;
-//	PVOID MdlWriteCompleteCompressed;
-//	PVOID FastIoQueryOpen;
-//	PVOID ReleaseForModWrite;
-//	PVOID AcquireForCcFlush;
-//	PVOID ReleaseForCcFlush;
-//} FAST_IO_DISPATCH, *PFAST_IO_DISPATCH;
-//
+
+typedef struct _FAST_IO_DISPATCH {
+	ULONG SizeOfFastIoDispatch;
+	PVOID FastIoCheckIfPossible;
+	PVOID FastIoRead;
+	PVOID FastIoWrite;
+	PVOID FastIoQueryBasicInfo;
+	PVOID FastIoQueryStandardInfo;
+	PVOID FastIoLock;
+	PVOID FastIoUnlockSingle;
+	PVOID FastIoUnlockAll;
+	PVOID FastIoUnlockAllByKey;
+	PVOID FastIoDeviceControl;
+	PVOID AcquireFileForNtCreateSection;
+	PVOID ReleaseFileForNtCreateSection;
+	PVOID FastIoDetachDevice;
+	PVOID FastIoQueryNetworkOpenInfo;
+	PVOID AcquireForModWrite;
+	PVOID MdlRead;
+	PVOID MdlReadComplete;
+	PVOID PrepareMdlWrite;
+	PVOID MdlWriteComplete;
+	PVOID FastIoReadCompressed;
+	PVOID FastIoWriteCompressed;
+	PVOID MdlReadCompleteCompressed;
+	PVOID MdlWriteCompleteCompressed;
+	PVOID FastIoQueryOpen;
+	PVOID ReleaseForModWrite;
+	PVOID AcquireForCcFlush;
+	PVOID ReleaseForCcFlush;
+} FAST_IO_DISPATCH, *PFAST_IO_DISPATCH;
+
 //#define IO_TYPE_ADAPTER                 0x00000001
 //#define IO_TYPE_CONTROLLER              0x00000002
 //#define IO_TYPE_DEVICE                  0x00000003
@@ -3244,69 +3244,69 @@ typedef struct _DEVICE_OBJECT {
 //#define IO_TYPE_ERROR_MESSAGE           0x0000000c
 //#define IO_TYPE_DEVICE_OBJECT_EXTENSION 0x0000000d
 //
-//#define IRP_MJ_CREATE                   0x00
-//#define IRP_MJ_CREATE_NAMED_PIPE        0x01
-//#define IRP_MJ_CLOSE                    0x02
-//#define IRP_MJ_READ                     0x03
-//#define IRP_MJ_WRITE                    0x04
-//#define IRP_MJ_QUERY_INFORMATION        0x05
-//#define IRP_MJ_SET_INFORMATION          0x06
-//#define IRP_MJ_QUERY_EA                 0x07
-//#define IRP_MJ_SET_EA                   0x08
-//#define IRP_MJ_FLUSH_BUFFERS            0x09
-//#define IRP_MJ_QUERY_VOLUME_INFORMATION 0x0a
-//#define IRP_MJ_SET_VOLUME_INFORMATION   0x0b
-//#define IRP_MJ_DIRECTORY_CONTROL        0x0c
-//#define IRP_MJ_FILE_SYSTEM_CONTROL      0x0d
-//#define IRP_MJ_DEVICE_CONTROL           0x0e
-//#define IRP_MJ_INTERNAL_DEVICE_CONTROL  0x0f
-//#define IRP_MJ_SHUTDOWN                 0x10
-//#define IRP_MJ_LOCK_CONTROL             0x11
-//#define IRP_MJ_CLEANUP                  0x12
-//#define IRP_MJ_CREATE_MAILSLOT          0x13
-//#define IRP_MJ_QUERY_SECURITY           0x14
-//#define IRP_MJ_SET_SECURITY             0x15
-//#define IRP_MJ_POWER                    0x16
-//#define IRP_MJ_SYSTEM_CONTROL           0x17
-//#define IRP_MJ_DEVICE_CHANGE            0x18
-//#define IRP_MJ_QUERY_QUOTA              0x19
-//#define IRP_MJ_SET_QUOTA                0x1a
-//#define IRP_MJ_PNP                      0x1b
-//#define IRP_MJ_PNP_POWER                IRP_MJ_PNP      
-//#define IRP_MJ_MAXIMUM_FUNCTION         0x1b
-//
-//typedef struct _DRIVER_EXTENSION {
-//
-//	//
-//	// Back pointer to Driver Object
-//	//
-//
-//	struct _DRIVER_OBJECT *DriverObject;
-//
-//	//
-//	// The AddDevice entry point is called by the Plug & Play manager
-//	// to inform the driver when a new device instance arrives that this
-//	// driver must control.
-//	//
-//
-//	PVOID AddDevice;
-//
-//	//
-//	// The count field is used to count the number of times the driver has
-//	// had its registered reinitialization routine invoked.
-//	//
-//
-//	ULONG Count;
-//
-//	//
-//	// The service name field is used by the pnp manager to determine
-//	// where the driver related info is stored in the registry.
-//	//
-//
-//	UNICODE_STRING ServiceKeyName;
-//
-//} DRIVER_EXTENSION, *PDRIVER_EXTENSION;
-//
+#define IRP_MJ_CREATE                   0x00
+#define IRP_MJ_CREATE_NAMED_PIPE        0x01
+#define IRP_MJ_CLOSE                    0x02
+#define IRP_MJ_READ                     0x03
+#define IRP_MJ_WRITE                    0x04
+#define IRP_MJ_QUERY_INFORMATION        0x05
+#define IRP_MJ_SET_INFORMATION          0x06
+#define IRP_MJ_QUERY_EA                 0x07
+#define IRP_MJ_SET_EA                   0x08
+#define IRP_MJ_FLUSH_BUFFERS            0x09
+#define IRP_MJ_QUERY_VOLUME_INFORMATION 0x0a
+#define IRP_MJ_SET_VOLUME_INFORMATION   0x0b
+#define IRP_MJ_DIRECTORY_CONTROL        0x0c
+#define IRP_MJ_FILE_SYSTEM_CONTROL      0x0d
+#define IRP_MJ_DEVICE_CONTROL           0x0e
+#define IRP_MJ_INTERNAL_DEVICE_CONTROL  0x0f
+#define IRP_MJ_SHUTDOWN                 0x10
+#define IRP_MJ_LOCK_CONTROL             0x11
+#define IRP_MJ_CLEANUP                  0x12
+#define IRP_MJ_CREATE_MAILSLOT          0x13
+#define IRP_MJ_QUERY_SECURITY           0x14
+#define IRP_MJ_SET_SECURITY             0x15
+#define IRP_MJ_POWER                    0x16
+#define IRP_MJ_SYSTEM_CONTROL           0x17
+#define IRP_MJ_DEVICE_CHANGE            0x18
+#define IRP_MJ_QUERY_QUOTA              0x19
+#define IRP_MJ_SET_QUOTA                0x1a
+#define IRP_MJ_PNP                      0x1b
+#define IRP_MJ_PNP_POWER                IRP_MJ_PNP      
+#define IRP_MJ_MAXIMUM_FUNCTION         0x1b
+
+typedef struct _DRIVER_EXTENSION {
+
+	//
+	// Back pointer to Driver Object
+	//
+
+	struct _DRIVER_OBJECT *DriverObject;
+
+	//
+	// The AddDevice entry point is called by the Plug & Play manager
+	// to inform the driver when a new device instance arrives that this
+	// driver must control.
+	//
+
+	PVOID AddDevice;
+
+	//
+	// The count field is used to count the number of times the driver has
+	// had its registered reinitialization routine invoked.
+	//
+
+	ULONG Count;
+
+	//
+	// The service name field is used by the pnp manager to determine
+	// where the driver related info is stored in the registry.
+	//
+
+	UNICODE_STRING ServiceKeyName;
+
+} DRIVER_EXTENSION, *PDRIVER_EXTENSION;
+
 //#define DRVO_UNLOAD_INVOKED             0x00000001
 //#define DRVO_LEGACY_DRIVER              0x00000002
 //#define DRVO_BUILTIN_DRIVER             0x00000004    // Driver objects for Hal, PnP Mgr
@@ -3317,70 +3317,70 @@ typedef struct _DEVICE_OBJECT {
 //// end_ntddk end_nthal end_ntifs end_ntosp
 //#define DRVO_BASE_FILESYSTEM_DRIVER     0x00000080   // A driver that is at the bottom of the filesystem stack.
 //// begin_ntddk begin_nthal begin_ntifs begin_ntosp
-//
-//typedef struct _DRIVER_OBJECT {
-//	CSHORT Type;
-//	CSHORT Size;
-//
-//	//
-//	// The following links all of the devices created by a single driver
-//	// together on a list, and the Flags word provides an extensible flag
-//	// location for driver objects.
-//	//
-//
-//	PDEVICE_OBJECT DeviceObject;
-//	ULONG Flags;
-//
-//	//
-//	// The following section describes where the driver is loaded.  The count
-//	// field is used to count the number of times the driver has had its
-//	// registered reinitialization routine invoked.
-//	//
-//
-//	PVOID DriverStart;
-//	ULONG DriverSize;
-//	PVOID DriverSection; //PLDR_DATA_TABLE_ENTRY
-//	PDRIVER_EXTENSION DriverExtension;
-//
-//	//
-//	// The driver name field is used by the error log thread
-//	// determine the name of the driver that an I/O request is/was bound.
-//	//
-//
-//	UNICODE_STRING DriverName;
-//
-//	//
-//	// The following section is for registry support.  Thise is a pointer
-//	// to the path to the hardware information in the registry
-//	//
-//
-//	PUNICODE_STRING HardwareDatabase;
-//
-//	//
-//	// The following section contains the optional pointer to an array of
-//	// alternate entry points to a driver for "fast I/O" support.  Fast I/O
-//	// is performed by invoking the driver routine directly with separate
-//	// parameters, rather than using the standard IRP call mechanism.  Note
-//	// that these functions may only be used for synchronous I/O, and when
-//	// the file is cached.
-//	//
-//
-//	PFAST_IO_DISPATCH FastIoDispatch;
-//
-//	//
-//	// The following section describes the entry points to this particular
-//	// driver.  Note that the major function dispatch table must be the last
-//	// field in the object so that it remains extensible.
-//	//
-//
-//	PVOID DriverInit;
-//	PVOID DriverStartIo;
-//	PVOID DriverUnload;
-//	PVOID MajorFunction[IRP_MJ_MAXIMUM_FUNCTION + 1];
-//
-//} DRIVER_OBJECT;
-//typedef struct _DRIVER_OBJECT *PDRIVER_OBJECT;
-//
+
+typedef struct _DRIVER_OBJECT {
+	CSHORT Type;
+	CSHORT Size;
+
+	//
+	// The following links all of the devices created by a single driver
+	// together on a list, and the Flags word provides an extensible flag
+	// location for driver objects.
+	//
+
+	PDEVICE_OBJECT DeviceObject;
+	ULONG Flags;
+
+	//
+	// The following section describes where the driver is loaded.  The count
+	// field is used to count the number of times the driver has had its
+	// registered reinitialization routine invoked.
+	//
+
+	PVOID DriverStart;
+	ULONG DriverSize;
+	PVOID DriverSection; //PLDR_DATA_TABLE_ENTRY
+	PDRIVER_EXTENSION DriverExtension;
+
+	//
+	// The driver name field is used by the error log thread
+	// determine the name of the driver that an I/O request is/was bound.
+	//
+
+	UNICODE_STRING DriverName;
+
+	//
+	// The following section is for registry support.  Thise is a pointer
+	// to the path to the hardware information in the registry
+	//
+
+	PUNICODE_STRING HardwareDatabase;
+
+	//
+	// The following section contains the optional pointer to an array of
+	// alternate entry points to a driver for "fast I/O" support.  Fast I/O
+	// is performed by invoking the driver routine directly with separate
+	// parameters, rather than using the standard IRP call mechanism.  Note
+	// that these functions may only be used for synchronous I/O, and when
+	// the file is cached.
+	//
+
+	PFAST_IO_DISPATCH FastIoDispatch;
+
+	//
+	// The following section describes the entry points to this particular
+	// driver.  Note that the major function dispatch table must be the last
+	// field in the object so that it remains extensible.
+	//
+
+	PVOID DriverInit;
+	PVOID DriverStartIo;
+	PVOID DriverUnload;
+	PVOID MajorFunction[IRP_MJ_MAXIMUM_FUNCTION + 1];
+
+} DRIVER_OBJECT;
+typedef struct _DRIVER_OBJECT *PDRIVER_OBJECT;
+
 //typedef struct _LDR_RESOURCE_INFO {
 //	ULONG_PTR Type;
 //	ULONG_PTR Name;
@@ -3485,33 +3485,33 @@ typedef struct _DEVICE_OBJECT {
 ///*
 //* WDM END
 //*/
-//
-///*
-//*  NTQSI Modules START
-//*/
-//
-//typedef struct _RTL_PROCESS_MODULE_INFORMATION {
-//	HANDLE Section;
-//	PVOID MappedBase;
-//	PVOID ImageBase;
-//	ULONG ImageSize;
-//	ULONG Flags;
-//	USHORT LoadOrderIndex;
-//	USHORT InitOrderIndex;
-//	USHORT LoadCount;
-//	USHORT OffsetToFileName;
-//	UCHAR FullPathName[256];
-//} RTL_PROCESS_MODULE_INFORMATION, *PRTL_PROCESS_MODULE_INFORMATION;
-//
-//typedef struct _RTL_PROCESS_MODULES {
-//	ULONG NumberOfModules;
-//	RTL_PROCESS_MODULE_INFORMATION Modules[1];
-//} RTL_PROCESS_MODULES, *PRTL_PROCESS_MODULES;
-//
-///*
-//*	NTQSI Modules END
-//*/
-//
+
+/*
+*  NTQSI Modules START
+*/
+
+typedef struct _RTL_PROCESS_MODULE_INFORMATION {
+	HANDLE Section;
+	PVOID MappedBase;
+	PVOID ImageBase;
+	ULONG ImageSize;
+	ULONG Flags;
+	USHORT LoadOrderIndex;
+	USHORT InitOrderIndex;
+	USHORT LoadCount;
+	USHORT OffsetToFileName;
+	UCHAR FullPathName[256];
+} RTL_PROCESS_MODULE_INFORMATION, *PRTL_PROCESS_MODULE_INFORMATION;
+
+typedef struct _RTL_PROCESS_MODULES {
+	ULONG NumberOfModules;
+	RTL_PROCESS_MODULE_INFORMATION Modules[1];
+} RTL_PROCESS_MODULES, *PRTL_PROCESS_MODULES;
+
+/*
+*	NTQSI Modules END
+*/
+
 ///*
 //** Virtual Memory START
 //*/
@@ -6325,18 +6325,19 @@ typedef NTSTATUS(WINAPI* NTQUERYSYMBOLICLINKOBJECT)(
 //************************************************************************************/
 //
 //NTSTATUS NTAPI NtCreateFile(
-//	_Out_ PHANDLE FileHandle,
-//	_In_ ACCESS_MASK DesiredAccess,
-//	_In_ POBJECT_ATTRIBUTES ObjectAttributes,
-//	_Out_ PIO_STATUS_BLOCK IoStatusBlock,
-//	_In_opt_ PLARGE_INTEGER AllocationSize,
-//	_In_ ULONG FileAttributes,
-//	_In_ ULONG ShareAccess,
-//	_In_ ULONG CreateDisposition,
-//	_In_ ULONG CreateOptions,
-//	_In_opt_ PVOID EaBuffer,
-//	_In_ ULONG EaLength);
-//
+typedef NTSTATUS(WINAPI* NTCREATEFILE)(
+	_Out_ PHANDLE FileHandle,
+	_In_ ACCESS_MASK DesiredAccess,
+	_In_ POBJECT_ATTRIBUTES ObjectAttributes,
+	_Out_ PIO_STATUS_BLOCK IoStatusBlock,
+	_In_opt_ PLARGE_INTEGER AllocationSize,
+	_In_ ULONG FileAttributes,
+	_In_ ULONG ShareAccess,
+	_In_ ULONG CreateDisposition,
+	_In_ ULONG CreateOptions,
+	_In_opt_ PVOID EaBuffer,
+	_In_ ULONG EaLength);
+
 //NTSTATUS NTAPI NtCreateNamedPipeFile(
 //	_Out_ PHANDLE FileHandle,
 //	_In_ ULONG DesiredAccess,

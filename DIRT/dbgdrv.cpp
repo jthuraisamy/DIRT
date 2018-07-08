@@ -13,8 +13,11 @@ DIRT::DebugDriver::DebugDriver()
 
 	enableDebugPrivilege();
 
-	terminateService("kldbgdrv");
-	initializeService("kldbgdrv", "kldbgdrv.sys");
+	bool isServiceTerminated  = terminateService("kldbgdrv");
+	bool isServiceInitialized = initializeService("kldbgdrv", "kldbgdrv.sys");
+
+	//std::cout << "isServiceTerminated  = " << isServiceTerminated << std::endl;
+	//std::cout << "isServiceInitialized = " << isServiceInitialized << std::endl;
 
 	hDebugDevice = loadDebugDriver(L"\\\\.\\kldbgdrv");
 }

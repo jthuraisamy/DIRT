@@ -44,17 +44,20 @@ void DIRT::Main::printCSV()
 				wcout << pDeviceObjectPath << ",";
 
 				// Print DriverObjectPath.
-				PWCHAR pDeviceName = pDeviceObjectPath + 8;
-				PWCHAR pDriverName = om.getDriverName(L"\\Device", pDeviceName);
-				if (pDriverName != nullptr)
+				PWCHAR pDeviceObjectName = pDeviceObjectPath + 8;
+				PWCHAR pDriverServiceName = om.getDriverServiceNameFromDevice(L"\\Device", pDeviceObjectName);
+				if (pDriverServiceName != nullptr)
 				{
-					wcout << L"\\Driver\\" << pDriverName << ",";
+					wcout << L"\\Driver\\" << pDriverServiceName << ",";
 
 					// Print DriverFilePath.
-					LPQUERY_SERVICE_CONFIG pDriverServiceConfig = getDriverServiceConfig(pDriverName);
+					PWCHAR pDriverFileName = om.getDriverFileName(pDriverServiceName);
+					wcout << &pDriverFileName[4] << ",";
+
+					// Print DriverDescription.
+					LPQUERY_SERVICE_CONFIG pDriverServiceConfig = getDriverServiceConfig(pDriverServiceName);
 					if (pDriverServiceConfig != nullptr)
 					{
-						wcout << pDriverServiceConfig->lpBinaryPathName << ",";
 						wcout << pDriverServiceConfig->lpDisplayName << ",";
 					}
 					else

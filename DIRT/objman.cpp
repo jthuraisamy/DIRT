@@ -18,6 +18,7 @@ DIRT::ObjectManager::ObjectManager()
 	HMODULE _hModule = LoadLibrary(_T("ntdll.dll"));
 
 	NtOpenFile = (NTOPENFILE)GetProcAddress(_hModule, "NtOpenFile");
+	NtCreateFile = (NTCREATEFILE)GetProcAddress(_hModule, "NtCreateFile");
 	NtOpenDirectoryObject = (NTOPENDIRECTORYOBJECT)GetProcAddress(_hModule, "NtOpenDirectoryObject");
 	NtQueryDirectoryObject = (NTQUERYDIRECTORYOBJECT)GetProcAddress(_hModule, "NtQueryDirectoryObject");
 	NtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(_hModule, "NtOpenSymbolicLinkObject");
@@ -27,24 +28,87 @@ DIRT::ObjectManager::ObjectManager()
 	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(_hModule, "RtlInitUnicodeString");
 }
 
-PWCHAR DIRT::ObjectManager::getDriverName(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
+PWCHAR DIRT::ObjectManager::getDriverFileName(const PWCHAR pDriverServiceName)
+{
+	PDRIVER_OBJECT pDriverObject = getDriverObject(L"\\Driver", pDriverServiceName);
+	return getDriverFileName(pDriverObject);
+}
+
+PWCHAR DIRT::ObjectManager::getDriverFileName(const PDRIVER_OBJECT pDriverObject)
+{
+	PVOID driverFileAddress = pDriverObject->DriverStart;
+
+	PRTL_PROCESS_MODULES            pModules = nullptr;
+	PRTL_PROCESS_MODULE_INFORMATION pModule = nullptr;
+
+	NTSTATUS nsCode;
+	ULONG ulBufferSize = BUFFER_SIZE;
+
+	// Get a list of process modules using NtQuerySystemInformation with
+	// the SystemModuleInformation argument.
+	do
+	{
+		pModules = (PRTL_PROCESS_MODULES)malloc(ulBufferSize);
+		nsCode = NtQuerySystemInformation(
+			(SYSTEM_INFORMATION_CLASS)SystemModuleInformation,
+			pModules,
+			ulBufferSize,
+			NULL
+		);
+
+		// NtQuerySystemInformation won't give us the correct buffer size,
+		// so we have to guess by doubling the buffer size and looping.
+		if (nsCode == STATUS_INFO_LENGTH_MISMATCH)
+		{
+			free(pModules);
+			pModules = nullptr;
+			ulBufferSize *= 2;
+		}
+	} while (nsCode == STATUS_INFO_LENGTH_MISMATCH);
+
+	for (unsigned long i = 0; i < pModules->NumberOfModules; i++)
+	{
+		pModule = &pModules->Modules[i];
+
+		if (pModule->ImageBase == pDriverObject->DriverStart)
+		{
+			WCHAR ntPath[MAX_PATH] = { 0 };
+			mbstowcs(ntPath, (const char*)pModule->FullPathName, strlen((const char*)pModule->FullPathName));
+			return convertNtPathToWin32Path(ntPath);
+		}
+	}
+
+	return NULL;
+}
+
+PWCHAR DIRT::ObjectManager::getDriverServiceNameFromDevice(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
 {
 	PDEVICE_OBJECT pDeviceObject = getDeviceObject(targetDirectoryPath, targetObjectName);
-	PWCHAR pDriverName = getObjectName(L"\\Driver", pDeviceObject->DriverObject);
+	PWCHAR pDriverName = getObjectNameFromAddress(L"\\Driver", pDeviceObject->DriverObject);
 	return pDriverName;
+}
+
+PDRIVER_OBJECT DIRT::ObjectManager::getDriverObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
+{
+	PDRIVER_OBJECT pDeviceObject = (PDRIVER_OBJECT)malloc(sizeof(DRIVER_OBJECT));
+	RtlSecureZeroMemory(pDeviceObject, sizeof(DRIVER_OBJECT));
+	PVOID pObjectAddress = getObjectAddressFromName(targetDirectoryPath, targetObjectName);
+	dbgDriver.readSystemMemory(pDeviceObject, pObjectAddress, sizeof(DRIVER_OBJECT));
+
+	return pDeviceObject;
 }
 
 PDEVICE_OBJECT DIRT::ObjectManager::getDeviceObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
 {
 	PDEVICE_OBJECT pDeviceObject = (PDEVICE_OBJECT)malloc(sizeof(DEVICE_OBJECT));
 	RtlSecureZeroMemory(pDeviceObject, sizeof(DEVICE_OBJECT));
-	PVOID pObjectAddress = getObjectAddress(targetDirectoryPath, targetObjectName);
+	PVOID pObjectAddress = getObjectAddressFromName(targetDirectoryPath, targetObjectName);
 	dbgDriver.readSystemMemory(pDeviceObject, pObjectAddress, sizeof(DEVICE_OBJECT));
 
 	return pDeviceObject;
 }
 
-PWCHAR DIRT::ObjectManager::getObjectName(const PWCHAR targetDirectoryPath, const PVOID targetObjectAddress)
+PWCHAR DIRT::ObjectManager::getObjectNameFromAddress(const PWCHAR targetDirectoryPath, const PVOID targetObjectAddress)
 {
 	PWCHAR pObjectName = nullptr;
 
@@ -105,7 +169,7 @@ PWCHAR DIRT::ObjectManager::getObjectName(const PWCHAR targetDirectoryPath, cons
 	return NULL;
 }
 
-PVOID DIRT::ObjectManager::getObjectAddress(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
+PVOID DIRT::ObjectManager::getObjectAddressFromName(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName)
 {
 	HANDLE hDirectory = getObjectDirectoryHandle(targetDirectoryPath);
 	PVOID  pDirectory = getObjectDirectoryAddress(hDirectory);
@@ -187,6 +251,37 @@ vector<POBJECT_DIRECTORY_INFORMATION> DIRT::ObjectManager::getDirectoryObjects(c
 	return objects;
 }
 
+PWCHAR DIRT::ObjectManager::convertNtPathToWin32Path(const PWCHAR inputPath)
+{
+	UNICODE_STRING    ntPath;
+	OBJECT_ATTRIBUTES objAttr;
+	IO_STATUS_BLOCK   iosb;
+	HANDLE            hFile;
+
+	RtlSecureZeroMemory(&ntPath, sizeof(ntPath));
+	RtlInitUnicodeString(&ntPath, inputPath);
+	InitializeObjectAttributes(&objAttr, &ntPath, OBJ_CASE_INSENSITIVE, 0, NULL);
+
+	NTSTATUS nsCode = NtCreateFile(
+		&hFile,
+		SYNCHRONIZE,
+		&objAttr,
+		&iosb,
+		NULL,
+		0,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		FILE_OPEN,
+		FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,
+		NULL,
+		0
+	);
+
+	PWCHAR pWin32Path = (PWCHAR)calloc(MAX_PATH, sizeof(WCHAR));
+	GetFinalPathNameByHandle(hFile, pWin32Path, MAX_PATH, FILE_NAME_OPENED);
+
+	return pWin32Path;
+}
+
 HANDLE DIRT::ObjectManager::getObjectDirectoryHandle(const PWCHAR path)
 {
 	HANDLE hDirectory = NULL;
@@ -211,7 +306,7 @@ PVOID DIRT::ObjectManager::getObjectDirectoryAddress(const HANDLE hDirectory)
 	NTSTATUS nsCode = 0;
 	USHORT SystemExtendedHandleInformation = 64;
 	PSYSTEM_HANDLE_INFORMATION_EX pHandles = nullptr;
-	ULONG ulBufferSize = 0x1000;
+	ULONG ulBufferSize = BUFFER_SIZE;
 
 	// Get a list of handles using NtQuerySystemInformation with
 	// the SystemExtendedHandleInformation argument.

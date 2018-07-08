@@ -13,6 +13,7 @@ private:
 	DIRT::DebugDriver dbgDriver;
 
 	NTOPENFILE                NtOpenFile;
+	NTCREATEFILE              NtCreateFile;
 	NTOPENDIRECTORYOBJECT     NtOpenDirectoryObject;
 	NTQUERYDIRECTORYOBJECT    NtQueryDirectoryObject;
 	NTOPENSYMBOLICLINKOBJECT  NtOpenSymbolicLinkObject;
@@ -23,11 +24,17 @@ private:
 
 public:
 	DIRT::ObjectManager();
-	PWCHAR                                getDriverName(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
+	PWCHAR                                getDriverFileName(const PWCHAR driverServiceName);
+	PWCHAR                                getDriverFileName(const PDRIVER_OBJECT driverObject);
+	PWCHAR                                getDriverServiceNameFromDevice(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
+	PDRIVER_OBJECT                        getDriverObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
 	PDEVICE_OBJECT                        getDeviceObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
-	PWCHAR                                getObjectName(const PWCHAR targetDirectoryPath, const PVOID targetObjectAddress);
-	PVOID                                 getObjectAddress(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
+	PWCHAR                                getObjectNameFromAddress(const PWCHAR targetDirectoryPath, const PVOID targetObjectAddress);
+	PVOID                                 getObjectAddressFromName(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
 	HANDLE                                getObjectDirectoryHandle(const PWCHAR path);
 	PVOID                                 getObjectDirectoryAddress(const HANDLE hDirectory);
 	vector<POBJECT_DIRECTORY_INFORMATION> getDirectoryObjects(const PWCHAR path);
+
+protected:
+	PWCHAR convertNtPathToWin32Path(const PWCHAR ntPath);
 };
