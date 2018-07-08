@@ -1,4 +1,4 @@
-# DIRT: Driver Initial Reconnaissance Tool
+﻿IRT: Driver Initial Reconnaissance Tool
 
 I'm writing this tool to learn C++ and get an initial assessment of drivers installed on a Windows system (e.g. master images developed by OEMs or enterprises). It's supposed to help with target selection, finding low-hanging fruit, and some assistance with deep-dive binary analysis.
 
@@ -28,7 +28,7 @@ I've used a combination of DeviceTree, WinObjEx64, and WinDbg for these use-case
 
 ## Building
 
-This should compile with Visual Studio 2017 or greater.
+This should compile with Visual Studio 2015 or greater.
 
 ## Usage
 

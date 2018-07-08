@@ -25,7 +25,7 @@ DIRT::Main::Main()
 
 void DIRT::Main::printCSV()
 {
-	cout << "SymbolicLink,DeviceObjectPath,DriverObjectPath,DriverFilePath,DriverDescription,InsecureDACL" << endl;
+	cout << "SymbolicLink,DeviceObjectPath,DriverObjectPath,DriverFilePath,DriverDescription,OpenDACL" << endl;
 
 	vector<POBJECT_DIRECTORY_INFORMATION> globalObjects = om.getDirectoryObjects(L"\\Global??");
 
