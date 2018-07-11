@@ -10,7 +10,7 @@ using namespace std;
 class DIRT::ObjectManager
 {
 private:
-	DIRT::DebugDriver dbgDriver;
+	DIRT::DebugDriver debug_driver;
 
 	NTOPENFILE                NtOpenFile;
 	NTCREATEFILE              NtCreateFile;
@@ -24,17 +24,17 @@ private:
 
 public:
 	DIRT::ObjectManager();
-	PWCHAR                                getDriverFileName(const PWCHAR driverServiceName);
-	PWCHAR                                getDriverFileName(const PDRIVER_OBJECT driverObject);
-	PWCHAR                                getDriverServiceNameFromDevice(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
-	PDRIVER_OBJECT                        getDriverObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
-	PDEVICE_OBJECT                        getDeviceObject(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
-	PWCHAR                                getObjectNameFromAddress(const PWCHAR targetDirectoryPath, const PVOID targetObjectAddress);
-	PVOID                                 getObjectAddressFromName(const PWCHAR targetDirectoryPath, const PWCHAR targetObjectName);
-	HANDLE                                getObjectDirectoryHandle(const PWCHAR path);
-	PVOID                                 getObjectDirectoryAddress(const HANDLE hDirectory);
-	vector<POBJECT_DIRECTORY_INFORMATION> getDirectoryObjects(const PWCHAR path);
+	PWCHAR                                GetDriverFileName(const PWCHAR ptr_driver_service_name);
+	PWCHAR                                GetDriverFileName(const PDRIVER_OBJECT ptr_driver_object);
+	PWCHAR                                GetDriverServiceNameFromDevice(const PWCHAR ptr_target_directory_path, const PWCHAR ptr_target_object_name);
+	PDRIVER_OBJECT                        GetDriverObject(const PWCHAR ptr_target_directory_path, const PWCHAR ptr_target_object_name);
+	PDEVICE_OBJECT                        GetDeviceObject(const PWCHAR ptr_target_directory_path, const PWCHAR ptr_target_object_name);
+	PWCHAR                                GetObjectNameFromAddress(const PWCHAR ptr_target_directory_path, const PVOID ptr_target_object_address);
+	PVOID                                 GetObjectAddressFromName(const PWCHAR ptr_target_directory_path, const PWCHAR ptr_target_object_name);
+	vector<POBJECT_DIRECTORY_INFORMATION> GetDirectoryObjects(const PWCHAR ptr_path);
+	HANDLE                                GetObjectDirectoryHandle(const PWCHAR ptr_path);
+	PVOID                                 GetObjectDirectoryAddress(const HANDLE hnd_directory);
 
 protected:
-	PWCHAR convertNtPathToWin32Path(const PWCHAR ntPath);
+	PWCHAR ConvertNtPathToWin32Path(const PWCHAR ptr_nt_path);
 };

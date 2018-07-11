@@ -1,8 +1,6 @@
 # DIRT: Driver Initial Reconnaissance Tool
 
-I'm writing this tool to learn C++ and get an initial assessment of drivers installed on a Windows system (e.g. master images developed by OEMs or enterprises). It's supposed to help with target selection, finding low-hanging fruit, and some assistance with deep-dive binary analysis.
-
-🚧 **Currently unstable, undergoing active development.** 🚧
+I'm writing this tool to learn C++ and get an initial assessment of drivers installed on a Windows system (e.g. master images developed by OEMs or enterprises). It's supposed to help with target selection, finding low-hanging fruit, and some assistance with deep-dive binary analysis. **Currently unstable, undergoing active development.**
 
 ## Primary Features
 

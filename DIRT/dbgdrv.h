@@ -4,7 +4,8 @@
 
 class DIRT::DebugDriver
 {
-	HANDLE hDebugDevice;
+	HANDLE                   hnd_debug_device;
+
 	NTOPENPROCESSTOKEN       NtOpenProcessToken;
 	NTADJUSTPRIVILEGESTOKEN  NtAdjustPrivilegesToken;
 	NTQUERYSYSTEMINFORMATION NtQuerySystemInformation;
@@ -14,15 +15,15 @@ public:
 	DebugDriver();
 	~DebugDriver();
 
-	bool isDebugModeOn();
-	bool enableDebugPrivilege();
+	bool IsDebugModeOn();
+	bool EnableDebugPrivilege();
 
-	bool readSystemMemory(_Out_ PVOID destinationAddress, PVOID sourceAddress, size_t sourceSize);
+	bool ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, size_t source_size);
 
 private:
-	bool initializeService(const char *szService, const char *szPath);
-	bool terminateService(const char *szService);
-	HANDLE loadDebugDriver(const PWCHAR deviceSymbolicLink);
+	bool   InitializeService(const char* ptr_service, const char* ptr_relative_path);
+	bool   TerminateService(const char* ptr_service);
+	HANDLE LoadDebugDriver(const PWCHAR ptr_device_symlink);
 };
 
 #define IOCTL_KD_PASS_THROUGH CTL_CODE(FILE_DEVICE_UNKNOWN, 0x1, METHOD_NEITHER, FILE_READ_ACCESS | FILE_WRITE_ACCESS)

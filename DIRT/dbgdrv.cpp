@@ -5,133 +5,134 @@
 
 DIRT::DebugDriver::DebugDriver()
 {
-	HMODULE _hModule = LoadLibrary(_T("ntdll.dll"));
-	NtOpenProcessToken = (NTOPENPROCESSTOKEN)GetProcAddress(_hModule, "NtOpenProcessToken");
-	NtAdjustPrivilegesToken = (NTADJUSTPRIVILEGESTOKEN)GetProcAddress(_hModule, "NtAdjustPrivilegesToken");
-	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(_hModule, "NtQuerySystemInformation");
-	NtClose = (NTCLOSE)GetProcAddress(_hModule, "NtClose");
+	HMODULE hnd_module = LoadLibrary(_T("ntdll.dll"));
+	NtOpenProcessToken = (NTOPENPROCESSTOKEN)GetProcAddress(hnd_module, "NtOpenProcessToken");
+	NtAdjustPrivilegesToken = (NTADJUSTPRIVILEGESTOKEN)GetProcAddress(hnd_module, "NtAdjustPrivilegesToken");
+	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(hnd_module, "NtQuerySystemInformation");
+	NtClose = (NTCLOSE)GetProcAddress(hnd_module, "NtClose");
 
-	enableDebugPrivilege();
+	EnableDebugPrivilege();
 
-	bool isServiceTerminated  = terminateService("kldbgdrv");
-	bool isServiceInitialized = initializeService("kldbgdrv", "kldbgdrv.sys");
+	bool is_service_terminated = TerminateService("kldbgdrv");
+	bool is_service_initialized = InitializeService("kldbgdrv", "kldbgdrv.sys");
 
 	//std::cout << "isServiceTerminated  = " << isServiceTerminated << std::endl;
 	//std::cout << "isServiceInitialized = " << isServiceInitialized << std::endl;
 
-	hDebugDevice = loadDebugDriver(L"\\\\.\\kldbgdrv");
+	hnd_debug_device = LoadDebugDriver(L"\\\\.\\kldbgdrv");
 }
 
 DIRT::DebugDriver::~DebugDriver()
 {
-	terminateService("kldbgdrv");
+	TerminateService("kldbgdrv");
 }
 
-bool DIRT::DebugDriver::isDebugModeOn()
+bool DIRT::DebugDriver::IsDebugModeOn()
 {
-	SYSTEM_KERNEL_DEBUGGER_INFORMATION kdInfo;
-	RtlSecureZeroMemory(&kdInfo, sizeof(kdInfo));
-	NtQuerySystemInformation(SystemKernelDebuggerInformation, &kdInfo, sizeof(kdInfo), NULL);
-	return kdInfo.KernelDebuggerEnabled;
+	SYSTEM_KERNEL_DEBUGGER_INFORMATION kd_info;
+	RtlSecureZeroMemory(&kd_info, sizeof(kd_info));
+	NtQuerySystemInformation(SystemKernelDebuggerInformation, &kd_info, sizeof(kd_info), NULL);
+	return kd_info.KernelDebuggerEnabled;
 }
 
-bool DIRT::DebugDriver::enableDebugPrivilege()
+bool DIRT::DebugDriver::EnableDebugPrivilege()
 {
 	NTSTATUS         status;
-	HANDLE           hToken;
-	TOKEN_PRIVILEGES TokenPrivileges;
+	HANDLE           hnd_token;
+	TOKEN_PRIVILEGES token_privileges;
 
 	status = NtOpenProcessToken(
 		NtCurrentProcess(),
 		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
-		&hToken
+		&hnd_token
 	);
 
-	TokenPrivileges.PrivilegeCount = 1;
-	TokenPrivileges.Privileges[0].Luid.LowPart = SE_DEBUG_PRIVILEGE;
-	TokenPrivileges.Privileges[0].Luid.HighPart = 0;
-	TokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	token_privileges.PrivilegeCount = 1;
+	token_privileges.Privileges[0].Luid.LowPart = SE_DEBUG_PRIVILEGE;
+	token_privileges.Privileges[0].Luid.HighPart = 0;
+	token_privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
 	status = NtAdjustPrivilegesToken(
-		hToken,
+		hnd_token,
 		FALSE,
-		&TokenPrivileges,
+		&token_privileges,
 		sizeof(TOKEN_PRIVILEGES),
-		(PTOKEN_PRIVILEGES)NULL, NULL
+		(PTOKEN_PRIVILEGES)NULL,
+		NULL
 	);
 
-	NtClose(hToken);
+	NtClose(hnd_token);
 
 	return true;
 }
 
-bool DIRT::DebugDriver::initializeService(const char *szService, const char *szPath)
+bool DIRT::DebugDriver::InitializeService(const char* ptr_service, const char* ptr_relative_path)
 {
-	bool isServiceInstalled = FALSE;
+	bool is_service_installed = FALSE;
 
-	char szFullPath[MAX_PATH] = { 0 };
-	_fullpath(szFullPath, szPath, MAX_PATH);
+	char ptr_full_path[MAX_PATH] = { 0 };
+	_fullpath(ptr_full_path, ptr_relative_path, MAX_PATH);
 
-	SC_HANDLE hManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	SC_HANDLE hnd_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 
-	if (!hManager)
+	if (!hnd_manager)
 		return FALSE;
 
-	SC_HANDLE hService = CreateServiceA(
-		hManager,
-		szService,
-		szService,
+	SC_HANDLE hnd_service = CreateServiceA(
+		hnd_manager,
+		ptr_service,
+		ptr_service,
 		SERVICE_ALL_ACCESS,
 		SERVICE_KERNEL_DRIVER,
 		SERVICE_DEMAND_START,
 		SERVICE_ERROR_NORMAL,
-		szFullPath,
+		ptr_full_path,
 		NULL, NULL, NULL, NULL, NULL
 	);
 
-	if (hService)
+	if (hnd_service)
 	{
-		isServiceInstalled = StartServiceA(hService, 0, NULL);
-		CloseServiceHandle(hService);
+		is_service_installed = StartServiceA(hnd_service, 0, NULL);
+		CloseServiceHandle(hnd_service);
 	}
 
-	CloseServiceHandle(hManager);
+	CloseServiceHandle(hnd_manager);
 
-	return isServiceInstalled;
+	return is_service_installed;
 }
 
-bool DIRT::DebugDriver::terminateService(const char *szService)
+bool DIRT::DebugDriver::TerminateService(const char* ptr_service)
 {
-	bool isServiceRemoved = FALSE;
+	bool is_service_removed = FALSE;
 
 	SERVICE_STATUS_PROCESS ssp;
-	DWORD dwBytesNeeded;
-	SC_HANDLE hManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	DWORD bytes_needed;
+	SC_HANDLE hnd_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 
-	if (!hManager)
+	if (!hnd_manager)
 		return FALSE;
 
-	SC_HANDLE hService = OpenServiceA(hManager, szService, SERVICE_ALL_ACCESS);
+	SC_HANDLE hnd_service = OpenServiceA(hnd_manager, ptr_service, SERVICE_ALL_ACCESS);
 
-	if (hService)
+	if (hnd_service)
 	{
-		if (QueryServiceStatusEx(hService, SC_STATUS_PROCESS_INFO, (LPBYTE)&ssp, sizeof(SERVICE_STATUS_PROCESS), &dwBytesNeeded))
+		if (QueryServiceStatusEx(hnd_service, SC_STATUS_PROCESS_INFO, (LPBYTE)&ssp, sizeof(SERVICE_STATUS_PROCESS), &bytes_needed))
 		{
-			ControlService(hService, SERVICE_CONTROL_STOP, (LPSERVICE_STATUS)&ssp);
-			isServiceRemoved = DeleteService(hService);
-			CloseServiceHandle(hService);
+			ControlService(hnd_service, SERVICE_CONTROL_STOP, (LPSERVICE_STATUS)&ssp);
+			is_service_removed = DeleteService(hnd_service);
+			CloseServiceHandle(hnd_service);
 		}
 	}
 
-	CloseServiceHandle(hManager);
+	CloseServiceHandle(hnd_manager);
 
-	return isServiceRemoved;
+	return is_service_removed;
 }
 
-HANDLE DIRT::DebugDriver::loadDebugDriver(const PWCHAR deviceSymbolicLink)
+HANDLE DIRT::DebugDriver::LoadDebugDriver(const PWCHAR ptr_device_symlink)
 {
 	HANDLE hDevice = CreateFile(
-		deviceSymbolicLink,
+		ptr_device_symlink,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -143,30 +144,30 @@ HANDLE DIRT::DebugDriver::loadDebugDriver(const PWCHAR deviceSymbolicLink)
 	return hDevice;
 }
 
-bool DIRT::DebugDriver::readSystemMemory(_Out_ PVOID destinationAddress, PVOID sourceAddress, size_t sourceSize)
+bool DIRT::DebugDriver::ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, size_t source_size)
 {
-	DWORD          bytesIO = 0;
+	DWORD          bytes_returned = 0;
 	KLDBG          kldbg;
-	SYSDBG_VIRTUAL dbgRequest;
+	SYSDBG_VIRTUAL debug_request;
 
 	// fill parameters for KdSystemDebugControl
-	dbgRequest.Address = sourceAddress;
-	dbgRequest.Buffer = destinationAddress;
-	dbgRequest.Request = sourceSize;
+	debug_request.Address = source_address;
+	debug_request.Buffer = destination_address;
+	debug_request.Request = source_size;
 
 	// fill parameters for kldbgdrv ioctl
 	kldbg.SysDbgRequest = SysDbgReadVirtual;
-	kldbg.OutputBuffer = &dbgRequest;
+	kldbg.OutputBuffer = &debug_request;
 	kldbg.OutputBufferSize = sizeof(SYSDBG_VIRTUAL);
 
 	return DeviceIoControl(
-		hDebugDevice,
+		hnd_debug_device,
 		IOCTL_KD_PASS_THROUGH,
 		&kldbg,
 		sizeof(kldbg),
-		&dbgRequest,
-		sizeof(dbgRequest),
-		&bytesIO,
+		&debug_request,
+		sizeof(debug_request),
+		&bytes_returned,
 		NULL
 	);
 }
