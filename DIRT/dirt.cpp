@@ -10,55 +10,55 @@
 
 DIRT::Main::Main()
 {
-	HMODULE _hModule = LoadLibrary(_T("ntdll.dll"));
+	HMODULE hnd_module = LoadLibrary(_T("ntdll.dll"));
 
-	NtOpenFile = (NTOPENFILE)GetProcAddress(_hModule, "NtOpenFile");
-	NtOpenDirectoryObject = (NTOPENDIRECTORYOBJECT)GetProcAddress(_hModule, "NtOpenDirectoryObject");
-	NtQueryDirectoryObject = (NTQUERYDIRECTORYOBJECT)GetProcAddress(_hModule, "NtQueryDirectoryObject");
-	NtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(_hModule, "NtOpenSymbolicLinkObject");
-	NtQuerySymbolicLinkObject = (NTQUERYSYMBOLICLINKOBJECT)GetProcAddress(_hModule, "NtQuerySymbolicLinkObject");
-	NtQuerySecurityObject = (NTQUERYSECURITYOBJECT)GetProcAddress(_hModule, "NtQuerySecurityObject");
-	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(_hModule, "NtQuerySystemInformation");
-	NtClose = (NTCLOSE)GetProcAddress(_hModule, "NtClose");
-	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(_hModule, "RtlInitUnicodeString");
+	NtOpenFile = (NTOPENFILE)GetProcAddress(hnd_module, "NtOpenFile");
+	NtOpenDirectoryObject = (NTOPENDIRECTORYOBJECT)GetProcAddress(hnd_module, "NtOpenDirectoryObject");
+	NtQueryDirectoryObject = (NTQUERYDIRECTORYOBJECT)GetProcAddress(hnd_module, "NtQueryDirectoryObject");
+	NtOpenSymbolicLinkObject = (NTOPENSYMBOLICLINKOBJECT)GetProcAddress(hnd_module, "NtOpenSymbolicLinkObject");
+	NtQuerySymbolicLinkObject = (NTQUERYSYMBOLICLINKOBJECT)GetProcAddress(hnd_module, "NtQuerySymbolicLinkObject");
+	NtQuerySecurityObject = (NTQUERYSECURITYOBJECT)GetProcAddress(hnd_module, "NtQuerySecurityObject");
+	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(hnd_module, "NtQuerySystemInformation");
+	NtClose = (NTCLOSE)GetProcAddress(hnd_module, "NtClose");
+	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(hnd_module, "RtlInitUnicodeString");
 }
 
 void DIRT::Main::PrintCSV()
 {
 	cout << "SymbolicLink,DeviceObjectPath,DriverObjectPath,DriverFilePath,DriverDescription,OpenDACL" << endl;
 
-	vector<POBJECT_DIRECTORY_INFORMATION> globalObjects = m_object_manager.GetDirectoryObjects(L"\\Global??");
+	vector<POBJECT_DIRECTORY_INFORMATION> ptr_global_objects = m_object_manager.GetDirectoryObjects(L"\\Global??");
 
-	for (POBJECT_DIRECTORY_INFORMATION pObjDirInfo : globalObjects)
+	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_global_objects)
 	{
-		if (wcscmp(pObjDirInfo->TypeName.Buffer, L"SymbolicLink") == 0)
+		if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"SymbolicLink") == 0)
 		{
 			// Print SymbolicLink.
-			wcout << L"\\\\.\\Global\\" << pObjDirInfo->Name.Buffer << ",";
+			wcout << L"\\\\.\\Global\\" << ptr_objdir_info->Name.Buffer << ",";
 
 			// Print DeviceObjectPath.
-			HANDLE hDirectory = m_object_manager.GetObjectDirectoryHandle(L"\\Global??");
-			PWCHAR pDeviceObjectPath = GetLinkTarget(hDirectory, &pObjDirInfo->Name);
-			if (pDeviceObjectPath != nullptr)
+			HANDLE hnd_directory = m_object_manager.GetObjectDirectoryHandle(L"\\Global??");
+			PWCHAR ptr_device_object_path = GetLinkTarget(hnd_directory, &ptr_objdir_info->Name);
+			if (ptr_device_object_path != nullptr)
 			{
-				wcout << pDeviceObjectPath << ",";
+				wcout << ptr_device_object_path << ",";
 
 				// Print DriverObjectPath.
-				PWCHAR pDeviceObjectName = &pDeviceObjectPath[8];
-				PWCHAR pDriverServiceName = m_object_manager.GetDriverServiceNameFromDevice(L"\\Device", pDeviceObjectName);
-				if (pDriverServiceName != nullptr)
+				PWCHAR ptr_device_object_name = &ptr_device_object_path[8];
+				PWCHAR ptr_device_service_name = m_object_manager.GetDriverServiceNameFromDevice(L"\\Device", ptr_device_object_name);
+				if (ptr_device_service_name != nullptr)
 				{
-					wcout << L"\\Driver\\" << pDriverServiceName << ",";
+					wcout << L"\\Driver\\" << ptr_device_service_name << ",";
 
 					// Print DriverFilePath.
-					PWCHAR pDriverFileName = m_object_manager.GetDriverFileName(pDriverServiceName);
-					wcout << &pDriverFileName[4] << ",";
+					PWCHAR ptr_driver_file_name = m_object_manager.GetDriverFileName(ptr_device_service_name);
+					wcout << &ptr_driver_file_name[4] << ",";
 
 					// Print DriverDescription.
-					LPQUERY_SERVICE_CONFIG pDriverServiceConfig = GetDriverServiceConfig(pDriverServiceName);
-					if (pDriverServiceConfig != nullptr)
+					LPQUERY_SERVICE_CONFIG ptr_driver_service_config = GetDriverServiceConfig(ptr_device_service_name);
+					if (ptr_driver_service_config != nullptr)
 					{
-						wcout << pDriverServiceConfig->lpDisplayName << ",";
+						wcout << ptr_driver_service_config->lpDisplayName << ",";
 					}
 					else
 					{
@@ -71,10 +71,10 @@ void DIRT::Main::PrintCSV()
 				}
 
 				// Print InsecureDACL.
-				ULONG ulEntryCount = 0;
-				EXPLICIT_ACCESS *eaEntries;
-				GetObjectDACL(pDeviceObjectPath, &eaEntries, &ulEntryCount);
-				wcout << IsObjectPubliclyWritable(&eaEntries, ulEntryCount) << endl;
+				ULONG entry_count = 0;
+				PEXPLICIT_ACCESS ptr_entries;
+				GetObjectDACL(ptr_device_object_path, &ptr_entries, &entry_count);
+				wcout << IsObjectPubliclyWritable(&ptr_entries, entry_count) << endl;
 			}
 			else
 			{
