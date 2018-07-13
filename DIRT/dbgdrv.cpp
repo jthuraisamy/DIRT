@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "dbgdrv.h"
 
 #include <iostream>
@@ -144,7 +144,7 @@ HANDLE DIRT::DebugDriver::LoadDebugDriver(const PWCHAR ptr_device_symlink)
 	return hDevice;
 }
 
-bool DIRT::DebugDriver::ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, size_t source_size)
+bool DIRT::DebugDriver::ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, ULONG source_size)
 {
 	DWORD          bytes_returned = 0;
 	KLDBG          kldbg;

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "objman.h"
 
 #include <iostream>
@@ -73,8 +73,15 @@ PWCHAR DIRT::ObjectManager::GetDriverFileName(const PDRIVER_OBJECT ptr_driver_ob
 
 		if (ptr_module->ImageBase == ptr_driver_object->DriverStart)
 		{
+			size_t return_value;
 			WCHAR nt_path[MAX_PATH] = { 0 };
-			mbstowcs(nt_path, (const char*)ptr_module->FullPathName, strlen((const char*)ptr_module->FullPathName));
+			mbstowcs_s(
+				&return_value,
+				nt_path,
+				strlen((const char*)ptr_module->FullPathName) / 2,
+				(const char*)ptr_module->FullPathName,
+				strlen((const char*)ptr_module->FullPathName)
+			);
 			return ConvertNtPathToWin32Path(nt_path);
 		}
 	}
@@ -145,7 +152,7 @@ PWCHAR DIRT::ObjectManager::GetObjectNameFromAddress(const PWCHAR ptr_target_dir
 
 			// Query the object name.
 			OBJECT_HEADER_NAME_INFO object_header_name_info;
-			SIZE_T                  object_name_size = 0;
+			ULONG                   object_name_size = 0;
 
 			RtlSecureZeroMemory(&object_header_name_info, sizeof(OBJECT_HEADER_NAME_INFO));
 			debug_driver.ReadSystemMemory(&object_header_name_info, (PVOID)ptr_info_header_address, sizeof(OBJECT_HEADER_NAME_INFO));
@@ -202,7 +209,7 @@ PVOID DIRT::ObjectManager::GetObjectAddressFromName(const PWCHAR ptr_target_dire
 			// Query the object name.
 			OBJECT_HEADER_NAME_INFO object_header_name_info;
 			WCHAR                   object_name_found[BUFSIZ] = { 0 };
-			SIZE_T                  object_name_size = 0;
+			ULONG                   object_name_size = 0;
 
 			RtlSecureZeroMemory(&object_header_name_info, sizeof(OBJECT_HEADER_NAME_INFO));
 			debug_driver.ReadSystemMemory(&object_header_name_info, (PVOID)ptr_info_header_address, sizeof(OBJECT_HEADER_NAME_INFO));

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "global.h"
 
@@ -18,7 +18,7 @@ public:
 	bool IsDebugModeOn();
 	bool EnableDebugPrivilege();
 
-	bool ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, size_t source_size);
+	bool ReadSystemMemory(_Out_ PVOID destination_address, PVOID source_address, ULONG source_size);
 
 private:
 	bool   InitializeService(const char* ptr_service, const char* ptr_relative_path);
