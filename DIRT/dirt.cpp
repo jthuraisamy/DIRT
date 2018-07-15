@@ -4,6 +4,7 @@
 #pragma comment(lib, "ntdll.lib")
 
 #include "stdafx.h"
+#include "global.h"
 #include "dirt.h"
 
 #include <iostream>
@@ -21,6 +22,16 @@ DIRT::Main::Main()
 	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(hnd_module, "NtQuerySystemInformation");
 	NtClose = (NTCLOSE)GetProcAddress(hnd_module, "NtClose");
 	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(hnd_module, "RtlInitUnicodeString");
+}
+
+vector<DIRT::PDRIVER> DIRT::Main::GetDrivers()
+{
+	return vector<PDRIVER>();
+}
+
+vector<DIRT::PDEVICE> DIRT::Main::GetDevices()
+{
+	return vector<PDEVICE>();
 }
 
 void DIRT::Main::PrintCSV()

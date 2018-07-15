@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "global.h"
 #include "objman.h"
@@ -23,6 +23,8 @@ class DIRT::Main
 
 public:
 	DIRT::Main();
+	vector<PDRIVER>        GetDrivers();
+	vector<PDEVICE>        GetDevices();
 	void                   PrintCSV();
 
 private:
