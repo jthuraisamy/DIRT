@@ -82,6 +82,9 @@ PWCHAR DIRT::ObjectManager::GetDriverFileName(const PDRIVER_OBJECT ptr_driver_ob
 				(const char*)ptr_module->FullPathName,
 				strlen((const char*)ptr_module->FullPathName)
 			);
+
+			free(ptr_modules);
+
 			return ConvertNtPathToWin32Path(nt_path);
 		}
 	}

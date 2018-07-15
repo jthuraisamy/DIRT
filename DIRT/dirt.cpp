@@ -1,4 +1,4 @@
-// DIRT.cpp : Defines the entry point for the console application.
+﻿// DIRT.cpp : Defines the entry point for the console application.
 //
 
 #pragma comment(lib, "ntdll.lib")
@@ -56,6 +56,7 @@ void DIRT::Main::PrintCSV()
 
 					// Print DriverDescription.
 					LPQUERY_SERVICE_CONFIG ptr_driver_service_config = GetDriverServiceConfig(ptr_device_service_name);
+					
 					if (ptr_driver_service_config != nullptr)
 					{
 						wcout << ptr_driver_service_config->lpDisplayName << ",";
@@ -64,6 +65,9 @@ void DIRT::Main::PrintCSV()
 					{
 						wcout << ",,";
 					}
+
+					free(ptr_driver_file_name);
+					free(ptr_driver_service_config);
 				}
 				else
 				{
