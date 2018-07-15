@@ -33,7 +33,7 @@ This should compile with Visual Studio 2015 or greater.
 ## Usage
 
 1. Enable debug mode with `bcdedit -debug on` with an administrative Command Prompt.
-2. Place `kldbgdrv.sys` (found with WinDbg) in the same directory as `DIRT.exe`.
+2. Place [`kldbgdrv.sys`](https://github.com/hfiref0x/WinObjEx64/raw/master/Source/drvstore/kldbgdrv.sys) (found with WinDbg) in the same directory as `DIRT.exe`.
 3. Run `DIRT.exe > output.csv` with administrative privileges.
 
 Below is some sample output to know what to expect:
