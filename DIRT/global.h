@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ntos.h"
 
@@ -20,8 +20,8 @@ namespace DIRT
 	} DEVICE, *PDEVICE;
 
 	typedef struct _DRIVER {
-		PTCHAR                 FilePath;
 		PTCHAR                 ServiceName;
+		PTCHAR                 FilePath;
 		LPQUERY_SERVICE_CONFIG ServiceConfig;
 		vector<PDEVICE>        Devices;
 	} DRIVER, *PDRIVER;

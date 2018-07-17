@@ -8,6 +8,8 @@
 #include "dirt.h"
 
 #include <iostream>
+#include <sstream>
+#include <string>
 
 DIRT::Main::Main()
 {
@@ -24,17 +26,83 @@ DIRT::Main::Main()
 	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(hnd_module, "RtlInitUnicodeString");
 }
 
-vector<DIRT::PDRIVER> DIRT::Main::GetDrivers()
+void DIRT::Main::PopulateDrivers()
 {
-	return vector<PDRIVER>();
+	PopulateDevices();
+
+	vector<POBJECT_DIRECTORY_INFORMATION> ptr_driver_objects = m_object_manager.GetDirectoryObjects(L"\\Driver");
+
+	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_driver_objects)
+	{
+		if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Driver") == 0)
+		{
+			PDRIVER ptr_driver = (PDRIVER)malloc(sizeof(DRIVER));
+
+			ptr_driver->ServiceName = ptr_objdir_info->Name.Buffer;
+			ptr_driver->FilePath = m_object_manager.GetDriverFileName(ptr_driver->ServiceName);
+			ptr_driver->ServiceConfig = GetDriverServiceConfig(ptr_driver->ServiceName);
+
+			//wcout << ptr_driver->ServiceName << ": " << ptr_driver->FilePath << endl;
+			
+			for (PDEVICE ptr_device : m_devices)
+			{
+				if (wcscmp(ptr_device->DriverServiceName, ptr_driver->ServiceName) == 0)
+				{
+					ptr_driver->Devices.push_back(ptr_device);
+				}
+			}
+
+			m_drivers.push_back(ptr_driver);
+		}
+	}
 }
 
-vector<DIRT::PDEVICE> DIRT::Main::GetDevices()
+void DIRT::Main::PopulateDevices()
 {
-	return vector<PDEVICE>();
+	PopulateDevices(L"\\Device");
 }
 
-void DIRT::Main::PrintCSV()
+void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
+{
+	vector<POBJECT_DIRECTORY_INFORMATION> ptr_driver_objects = m_object_manager.GetDirectoryObjects(ptr_directory_path);
+
+	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_driver_objects)
+	{
+		if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Directory") == 0)
+		{
+			// ToDo: recursive functionality for subdirectories.
+		}
+		else if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Device") == 0)
+		{
+			PTCHAR driver_service_name = m_object_manager.GetDriverServiceNameFromDevice(ptr_directory_path, ptr_objdir_info->Name.Buffer);
+
+			if (driver_service_name == nullptr)
+				continue;
+			
+			PDEVICE ptr_device = (PDEVICE)malloc(sizeof(DEVICE));
+
+			ptr_device->DriverServiceName = driver_service_name;
+
+			ptr_device->ObjectPath = (PTCHAR)malloc(MAX_PATH);
+			swprintf(ptr_device->ObjectPath, L"%s\\%s", ptr_directory_path, ptr_objdir_info->Name.Buffer);
+
+			//wcout << ptr_device->DriverServiceName << ": " << ptr_device->ObjectPath;
+
+			ULONG entry_count = 0;
+			PEXPLICIT_ACCESS ptr_entries = nullptr;
+			GetObjectDACL(ptr_device->ObjectPath, &ptr_entries, &entry_count);
+			ptr_device->OpenDACL = IsObjectPubliclyWritable(&ptr_entries, entry_count);
+
+			//wcout << " (" << ptr_device->OpenDACL << ")" << endl;
+
+			// ToDo: populate symbolic paths.
+
+			m_devices.push_back(ptr_device);
+		}
+	}
+}
+
+void DIRT::Main::ExportCSV()
 {
 	cout << "SymbolicLink,DeviceObjectPath,DriverObjectPath,DriverFilePath,DriverDescription,OpenDACL" << endl;
 
@@ -87,7 +155,7 @@ void DIRT::Main::PrintCSV()
 
 				// Print InsecureDACL.
 				ULONG entry_count = 0;
-				PEXPLICIT_ACCESS ptr_entries;
+				PEXPLICIT_ACCESS ptr_entries = nullptr;
 				GetObjectDACL(ptr_device_object_path, &ptr_entries, &entry_count);
 				wcout << IsObjectPubliclyWritable(&ptr_entries, entry_count) << endl;
 			}
@@ -262,7 +330,7 @@ int main()
 {
 	DIRT::Main dirt;
 
-	dirt.PrintCSV();
+	dirt.ExportCSV();
 
 	return 0;
 }

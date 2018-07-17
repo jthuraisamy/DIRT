@@ -16,8 +16,8 @@ DIRT::DebugDriver::DebugDriver()
 	bool is_service_terminated = TerminateService("kldbgdrv");
 	bool is_service_initialized = InitializeService("kldbgdrv", "kldbgdrv.sys");
 
-	//std::cout << "isServiceTerminated  = " << isServiceTerminated << std::endl;
-	//std::cout << "isServiceInitialized = " << isServiceInitialized << std::endl;
+	//std::cout << "is_service_terminated  = " << is_service_terminated << std::endl;
+	//std::cout << "is_service_initialized = " << is_service_initialized << std::endl;
 
 	hnd_debug_device = LoadDebugDriver(L"\\\\.\\kldbgdrv");
 }
