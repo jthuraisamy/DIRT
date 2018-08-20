@@ -34,9 +34,48 @@ This should compile with Visual Studio 2015 or greater.
 
 1. Enable debug mode with `bcdedit -debug on` with an administrative Command Prompt.
 2. Place [`kldbgdrv.sys`](https://github.com/hfiref0x/WinObjEx64/raw/master/Source/drvstore/kldbgdrv.sys) (found with WinDbg) in the same directory as `DIRT.exe`.
-3. Run `DIRT.exe > output.csv` with administrative privileges.
+3. Run `DIRT.exe > output.txt` with administrative privileges.
 
 Below is some sample output to know what to expect:
+
+```
+DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)
+Repository:  https://github.com/jthuraisamy/DIRT
+Compiled on: Aug 20 2018 00:01:04
+
+SynTP: Synaptics TouchPad Driver
+Path: C:\Windows\System32\drivers\SynTP.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
+Devices: 1
+└── \Device\SynTP (open DACL, 1 symlinks)
+    └── \\.\Global\SYNTP
+
+GpuEnergyDrv: GPU Energy Driver
+Path: C:\Windows\System32\drivers\gpuenergydrv.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF809120D1010
+Devices: 1
+└── \Device\gpuenergydrv (open DACL, 1 symlinks)
+    └── \\.\Global\gpuenergydrv
+
+igfx: igfx
+Path: C:\Windows\System32\DriverStore\FileRepository\ki120214.inf_amd64_de4face30e430be3\igdkmd64.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF809118ADB70
+Devices: 4
+├── \Device\0000004b (closed DACL, 4 symlinks)
+│   └── \\.\Global\LCD
+│   └── \\.\Global\DISPLAY#CMN1365#4&4134298&0&UID235988#{1f6ea42e-fc7e-46f5-9fb7-3d2c11c02569}
+└── \Device\Video0 (closed DACL, 1 symlinks)
+    └── \\.\Global\DISPLAY1
+
+iaLPSS2i_I2C: Intel(R) Serial IO I2C Driver v2
+Path: C:\Windows\System32\drivers\iaLPSS2i_I2C.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
+Devices: 2
+├── \Device\0000003c (open DACL, 0 symlinks)
+└── \Device\0000003d (open DACL, 0 symlinks)
+```
+
+There is also a CSV output available using `DIRT::Main::ExportCSV()`:
 
 ![](https://i.imgur.com/lTefDUR.png)
 
