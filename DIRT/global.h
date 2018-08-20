@@ -23,7 +23,8 @@ namespace DIRT
 		PTCHAR                 ServiceName;
 		PTCHAR                 FilePath;
 		LPQUERY_SERVICE_CONFIG ServiceConfig;
-		vector<PDEVICE>        Devices;
+		PVOID                  IrpMjDeviceControl;
+		vector<DEVICE>         Devices;
 	} DRIVER, *PDRIVER;
 }
 

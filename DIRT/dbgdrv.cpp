@@ -11,13 +11,28 @@ DIRT::DebugDriver::DebugDriver()
 	NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(hnd_module, "NtQuerySystemInformation");
 	NtClose = (NTCLOSE)GetProcAddress(hnd_module, "NtClose");
 
-	EnableDebugPrivilege();
+	if (IsDebugModeOn())
+	{
+		EnableDebugPrivilege();
+	}
+	else
+	{
+		cerr << "ERROR: Debug mode is not on. Please enable it with bcdedit -debug on." << endl;
+		exit(1);
+	}
+		
 
-	bool is_service_terminated = TerminateService("kldbgdrv");
-	bool is_service_initialized = InitializeService("kldbgdrv", "kldbgdrv.sys");
+	bool is_service_terminated  = TerminateService("kldbgdrv");
+	bool is_service_initialized = InitializeService("kldbgdrv", "C:\\Windows\\System32\\kldbgdrv.sys");
 
 	//std::cout << "is_service_terminated  = " << is_service_terminated << std::endl;
 	//std::cout << "is_service_initialized = " << is_service_initialized << std::endl;
+
+	if (!is_service_initialized)
+	{
+		cerr << "ERROR: Could not load kldbgdrv.sys. Is another application using it?" << endl;
+		exit(1);
+	}
 
 	hnd_debug_device = LoadDebugDriver(L"\\\\.\\kldbgdrv");
 }

@@ -26,6 +26,9 @@ DIRT::Main::Main()
 	RtlInitUnicodeString = (RTLINITUNICODESTRING)GetProcAddress(hnd_module, "RtlInitUnicodeString");
 }
 
+/// <summary>
+/// Populate the m_drivers object.
+/// </summary>
 void DIRT::Main::PopulateDrivers()
 {
 	PopulateDevices();
@@ -36,23 +39,25 @@ void DIRT::Main::PopulateDrivers()
 	{
 		if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Driver") == 0)
 		{
-			PDRIVER ptr_driver = (PDRIVER)malloc(sizeof(DRIVER));
+			DRIVER driver;
 
-			ptr_driver->ServiceName = ptr_objdir_info->Name.Buffer;
-			ptr_driver->FilePath = m_object_manager.GetDriverFileName(ptr_driver->ServiceName);
-			ptr_driver->ServiceConfig = GetDriverServiceConfig(ptr_driver->ServiceName);
+			driver.ServiceName = ptr_objdir_info->Name.Buffer;
+			driver.FilePath = m_object_manager.GetDriverFileName(driver.ServiceName);
+			driver.ServiceConfig = GetDriverServiceConfig(driver.ServiceName);
+			driver.IrpMjDeviceControl = m_object_manager.GetDriverMajorFunction(driver.ServiceName, IRP_MJ_DEVICE_CONTROL);
 
-			//wcout << ptr_driver->ServiceName << ": " << ptr_driver->FilePath << endl;
+			wcerr << L"Querying driver: " << driver.ServiceName << setw(80) << "\r";
+			wcerr.flush();
 			
-			for (PDEVICE ptr_device : m_devices)
+			for (DEVICE ptr_device : m_devices)
 			{
-				if (wcscmp(ptr_device->DriverServiceName, ptr_driver->ServiceName) == 0)
+				if (wcscmp(ptr_device.DriverServiceName, driver.ServiceName) == 0)
 				{
-					ptr_driver->Devices.push_back(ptr_device);
+					driver.Devices.push_back(ptr_device);
 				}
 			}
 
-			m_drivers.push_back(ptr_driver);
+			m_drivers.push_back(driver);
 		}
 	}
 }
@@ -62,11 +67,22 @@ void DIRT::Main::PopulateDevices()
 	PopulateDevices(L"\\Device");
 }
 
+/// <summary>
+/// Populate the m_devices object.
+/// </summary>
+/// <param name="ptr_directory_path">Path of the directory (e.g. "\\Device").</param>
 void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 {
-	vector<POBJECT_DIRECTORY_INFORMATION> ptr_driver_objects = m_object_manager.GetDirectoryObjects(ptr_directory_path);
+	// Cache the symbolic links in \\Global??.
+	vector<UNICODE_STRING> symbolic_links;
+	HANDLE hnd_global_directory = m_object_manager.GetObjectDirectoryHandle(L"\\Global??");
+	vector<POBJECT_DIRECTORY_INFORMATION> ptr_global_objects = m_object_manager.GetDirectoryObjects(L"\\Global??");
+	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_global_objects)
+		symbolic_links.push_back(ptr_objdir_info->Name);
 
-	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_driver_objects)
+	vector<POBJECT_DIRECTORY_INFORMATION> ptr_device_objects = m_object_manager.GetDirectoryObjects(ptr_directory_path);
+
+	for (POBJECT_DIRECTORY_INFORMATION ptr_objdir_info : ptr_device_objects)
 	{
 		if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Directory") == 0)
 		{
@@ -79,26 +95,83 @@ void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 			if (driver_service_name == nullptr)
 				continue;
 			
-			PDEVICE ptr_device = (PDEVICE)malloc(sizeof(DEVICE));
+			DEVICE device;
 
-			ptr_device->DriverServiceName = driver_service_name;
+			device.DriverServiceName = driver_service_name;
 
-			ptr_device->ObjectPath = (PTCHAR)malloc(MAX_PATH);
-			swprintf(ptr_device->ObjectPath, L"%s\\%s", ptr_directory_path, ptr_objdir_info->Name.Buffer);
-
-			//wcout << ptr_device->DriverServiceName << ": " << ptr_device->ObjectPath;
+			device.ObjectPath = (PTCHAR)malloc(MAX_PATH);
+			swprintf(device.ObjectPath, MAX_PATH, L"%s\\%s", ptr_directory_path, ptr_objdir_info->Name.Buffer);
+			wcerr << L"Querying device: " << device.ObjectPath << setw(80) << "\r";
+			wcerr.flush();
 
 			ULONG entry_count = 0;
 			PEXPLICIT_ACCESS ptr_entries = nullptr;
-			GetObjectDACL(ptr_device->ObjectPath, &ptr_entries, &entry_count);
-			ptr_device->OpenDACL = IsObjectPubliclyWritable(&ptr_entries, entry_count);
+			GetObjectDACL(device.ObjectPath, &ptr_entries, &entry_count);
+			device.OpenDACL = IsObjectPubliclyWritable(&ptr_entries, entry_count);
 
-			//wcout << " (" << ptr_device->OpenDACL << ")" << endl;
+			for (UNICODE_STRING symbolic_link : symbolic_links)
+				if (wcscmp(device.ObjectPath, GetLinkTarget(hnd_global_directory, &symbolic_link)) == 0)
+					device.SymbolicLinks.push_back(symbolic_link.Buffer);
 
-			// ToDo: populate symbolic paths.
-
-			m_devices.push_back(ptr_device);
+			m_devices.push_back(device);
 		}
+	}
+}
+
+/// <summary>
+/// Print out driver info in human readable format.
+/// </summary>
+/// <param name="is_lowpriv_accessible">True if low-priv users can create a handle.</param>
+void DIRT::Main::ExportHumanReadable(const bool is_lowpriv_accessible)
+{
+	for (int i = 0; i < m_drivers.size(); i++)
+	{
+		DRIVER driver = m_drivers[i];
+
+		//if (driver.Devices.size() == 0)
+		//	continue;
+
+		if (driver.ServiceConfig != nullptr)
+			wcout << driver.ServiceName << ": " << driver.ServiceConfig->lpDisplayName << endl;
+		else
+			wcout << driver.ServiceName << endl;
+
+		wcout << "Path: " << &driver.FilePath[4] << endl;
+		
+		if (driver.IrpMjDeviceControl == nullptr)
+			wcout << "IRP_MJ_DEVICE_CONTROL: N/A" << endl;
+		else
+			wcout << "IRP_MJ_DEVICE_CONTROL: 0x" << hex << driver.IrpMjDeviceControl << endl;
+
+		wcout << "Devices: " << driver.Devices.size() << endl;
+
+		for (int j = 0; j < driver.Devices.size(); j++)
+		{
+			DEVICE device = driver.Devices[j];
+
+			//if ((device.SymbolicLinks.size() == 0) || (device.OpenDACL == false))
+			//	continue;
+
+			if (j == driver.Devices.size() - 1)
+				wcout << L"└── " << device.ObjectPath;
+			else
+				wcout << L"├── " << device.ObjectPath;
+
+			wcout << " (" << (device.OpenDACL ? "open DACL" : "closed DACL") << ", " << device.SymbolicLinks.size() << " symlinks)" << endl;
+
+			if (device.SymbolicLinks.size() > 0)
+			{
+				for (PTCHAR symbolic_link : device.SymbolicLinks)
+				{
+					if (j == driver.Devices.size() - 1)
+						wcout << L"    └── " << L"\\\\.\\Global\\" << symbolic_link << endl;
+					else
+						wcout << L"│   └── " << L"\\\\.\\Global\\" << symbolic_link << endl;
+				}
+			}
+		}
+
+		wcout << endl;
 	}
 }
 
@@ -295,6 +368,12 @@ int DIRT::Main::GetObjectDACL(const PWCHAR ptr_path, _Out_ PEXPLICIT_ACCESS* ptr
 	return 0;
 }
 
+/// <summary>
+/// Resolve target of provided symbolic link/path.
+/// </summary>
+/// <param name="hnd_root_directory">Use DIRT::ObjectManager::GetObjectDirectoryHandle for this.</param>
+/// <param name="ptr_object_name"></param>
+/// <returns></returns>
 PWCHAR DIRT::Main::GetLinkTarget(const HANDLE hnd_root_directory, const PUNICODE_STRING ptr_object_name)
 {
 	OBJECT_ATTRIBUTES object_attributes;
@@ -326,11 +405,22 @@ PWCHAR DIRT::Main::GetLinkTarget(const HANDLE hnd_root_directory, const PUNICODE
 	return target_name.Buffer;
 }
 
-int main()
+int main(int argc, wchar_t* argv[])
 {
-	DIRT::Main dirt;
+	_setmode(_fileno(stdout), _O_U16TEXT);
 
-	dirt.ExportCSV();
+	cerr << "DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)" << endl;
+	cerr << "Repository:  https://github.com/jthuraisamy/DIRT" << endl;
+	cerr << "Compiled on: " << __DATE__ << " " << __TIME__ << endl << endl;
+	
+	DIRT::Main dirt;
+	dirt.PopulateDrivers();
+
+	dirt.ExportHumanReadable(false);
+	//dirt.ExportCSV();
+
+	cerr.flush();
+	cerr << "Complete!" << setw(80) << endl;
 
 	return 0;
 }

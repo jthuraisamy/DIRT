@@ -4,13 +4,16 @@
 #include "objman.h"
 
 #include <aclapi.h>
+#include <iomanip>
+#include <io.h>
+#include <fcntl.h>
 
 class DIRT::Main
 {
 	DIRT::ObjectManager       m_object_manager;
 
-	vector<PDRIVER>           m_drivers;
-	vector<PDEVICE>           m_devices;
+	vector<DRIVER>            m_drivers;
+	vector<DEVICE>            m_devices;
 
 	NTOPENFILE                NtOpenFile;
 	NTOPENDIRECTORYOBJECT     NtOpenDirectoryObject;
@@ -27,6 +30,7 @@ public:
 	void                   PopulateDrivers();
 	void                   PopulateDevices();
 	void                   PopulateDevices(const PWCHAR ptr_directory_path);
+	void                   ExportHumanReadable(const bool is_lowpriv_accessible);
 	void                   ExportCSV();
 	void                   ExportJSON();
 

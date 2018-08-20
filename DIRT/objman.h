@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "global.h"
 #include "dbgdrv.h"
@@ -24,6 +24,7 @@ private:
 
 public:
 	DIRT::ObjectManager();
+	PVOID                                 GetDriverMajorFunction(const PWCHAR ptr_driver_service_name, const int major_function_idx);
 	PWCHAR                                GetDriverFileName(const PWCHAR ptr_driver_service_name);
 	PWCHAR                                GetDriverFileName(const PDRIVER_OBJECT ptr_driver_object);
 	PWCHAR                                GetDriverServiceNameFromDevice(const PWCHAR ptr_target_directory_path, const PWCHAR ptr_target_object_name);
