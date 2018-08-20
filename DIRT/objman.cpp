@@ -31,14 +31,7 @@ DIRT::ObjectManager::ObjectManager()
 PVOID DIRT::ObjectManager::GetDriverMajorFunction(const PWCHAR ptr_driver_service_name, const int major_function_idx)
 {
 	PDRIVER_OBJECT ptr_driver_object = GetDriverObject(L"\\Driver", ptr_driver_service_name);
-	unsigned long long ptr_irp_mj_device_control = (unsigned long long)ptr_driver_object->MajorFunction[major_function_idx];
-	unsigned long long ptr_driver_start = (unsigned long long)ptr_driver_object->DriverStart;
-	unsigned long long ptr_driver_end = ptr_driver_start + (unsigned long long)ptr_driver_object->DriverSize;
-
-	if ((ptr_irp_mj_device_control >= ptr_driver_start) && (ptr_irp_mj_device_control <= ptr_driver_end))
-		return ptr_driver_object->MajorFunction[major_function_idx];
-	else
-		return nullptr;
+	return ptr_driver_object->MajorFunction[major_function_idx];
 }
 
 PWCHAR DIRT::ObjectManager::GetDriverFileName(const PWCHAR ptr_driver_service_name)
