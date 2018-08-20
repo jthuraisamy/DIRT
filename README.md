@@ -60,8 +60,8 @@ Devices: 1
 igfx: igfx
 Path: C:\Windows\System32\DriverStore\FileRepository\ki120214.inf_amd64_de4face30e430be3\igdkmd64.sys
 IRP_MJ_DEVICE_CONTROL: 0xFFFFF809118ADB70
-Devices: 4
-├── \Device\0000004b (closed DACL, 4 symlinks)
+Devices: 2
+├── \Device\0000004b (closed DACL, 2 symlinks)
 │   └── \\.\Global\LCD
 │   └── \\.\Global\DISPLAY#CMN1365#4&4134298&0&UID235988#{1f6ea42e-fc7e-46f5-9fb7-3d2c11c02569}
 └── \Device\Video0 (closed DACL, 1 symlinks)
