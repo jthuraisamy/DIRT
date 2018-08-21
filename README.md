@@ -56,23 +56,31 @@ IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
 Devices: 1
 └── \Device\SynTP (open DACL, 1 symlinks)
     └── \\.\Global\SYNTP
+    
+ETD: ELAN PS/2 Port Input Device
+Path: C:\Windows\System32\drivers\ETD.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF803D3521DC0
+Devices: 1
+└── \Device\ETD (open DACL, 1 symlinks)
+    └── \\.\Global\ETD
 
-igfx: igfx
-Path: C:\Windows\System32\DriverStore\FileRepository\ki120214.inf_amd64_de4face30e430be3\igdkmd64.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF809118ADB70
+rt640x64: Realtek RT640 NT Driver
+Path: C:\Windows\System32\drivers\rt640x64.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF803CE6AFFF0
 Devices: 2
-├── \Device\0000004b (closed DACL, 2 symlinks)
-│   └── \\.\Global\LCD
-│   └── \\.\Global\DISPLAY#CMN1365#4&4134298&0&UID235988#{1f6ea42e-fc7e-46f5-9fb7-3d2c11c02569}
-└── \Device\Video0 (closed DACL, 1 symlinks)
-    └── \\.\Global\DISPLAY1
+├── \Device\NDMP2 (open DACL, 1 symlinks)
+│   └── \\.\Global\{02873985-BE00-4DD1-9CBB-C311D97525E7}
+└── \Device\RealTekCard{02873985-BE00-4DD1-9CBB-C311D97525E7} (open DACL, 1 symlinks)
+    └── \\.\Global\RealTekCard{02873985-BE00-4DD1-9CBB-C311D97525E7}
 
-iaLPSS2i_I2C: Intel(R) Serial IO I2C Driver v2
-Path: C:\Windows\System32\drivers\iaLPSS2i_I2C.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
+nvlddmkm: nvlddmkm
+Path: C:\Windows\System32\DriverStore\FileRepository\nvlt.inf_amd64_ed3ba3fb30d4dd86\nvlddmkm.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF803D1A39940
 Devices: 2
-├── \Device\0000003c (open DACL, 0 symlinks)
-└── \Device\0000003d (open DACL, 0 symlinks)
+├── \Device\NvAdminDevice (open DACL, 1 symlinks)
+│   └── \\.\Global\NvAdminDevice
+└── \Device\UVMLiteController0x1 (open DACL, 1 symlinks)
+    └── \\.\Global\UVMLiteController
 ```
 
 There is also a CSV output available using `DIRT::Main::ExportCSV()`:
