@@ -43,19 +43,19 @@ DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)
 Repository:  https://github.com/jthuraisamy/DIRT
 Compiled on: Aug 20 2018 00:01:04
 
+Capcom: Capcom
+Path: C:\Windows\System32\drivers\Capcom.sys
+IRP_MJ_DEVICE_CONTROL: 0xFFFFF80055750590
+Devices: 1
+└── \Device\Htsysm72FB (open DACL, 1 symlinks)
+    └── \\.\Global\Htsysm72FB
+
 SynTP: Synaptics TouchPad Driver
 Path: C:\Windows\System32\drivers\SynTP.sys
 IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
 Devices: 1
 └── \Device\SynTP (open DACL, 1 symlinks)
     └── \\.\Global\SYNTP
-
-GpuEnergyDrv: GPU Energy Driver
-Path: C:\Windows\System32\drivers\gpuenergydrv.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF809120D1010
-Devices: 1
-└── \Device\gpuenergydrv (open DACL, 1 symlinks)
-    └── \\.\Global\gpuenergydrv
 
 igfx: igfx
 Path: C:\Windows\System32\DriverStore\FileRepository\ki120214.inf_amd64_de4face30e430be3\igdkmd64.sys
