@@ -131,8 +131,9 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 		DRIVER driver = m_drivers[i];
 
 		if (no_microsoft)
-			if (wcscmp(driver.CompanyName, L"Microsoft Corporation") == 0)
-				continue;
+			if (driver.CompanyName != nullptr)
+				if (wcscmp(driver.CompanyName, L"Microsoft Corporation") == 0)
+					continue;
 
 		if (lowpriv_accessible_only)
 		{
@@ -483,7 +484,7 @@ int main(int argc, char* argv[])
 	{
 		if (strcmp(argv[i], "--lp-only") == 0)
 		{
-			cerr << "INFO: Only showing that low-privileged users can interface with (--lp-only)." << endl;
+			cerr << "INFO: Only showing drivers that low-privileged users can interface with (--lp-only)." << endl;
 			lowpriv_accessible_only = true;
 		}
 		else if (strcmp(argv[i], "--no-msft") == 0)
@@ -492,7 +493,7 @@ int main(int argc, char* argv[])
 			no_microsoft = true;
 		}
 
-		if (i == argc - 1)
+		if (i + 1 == argc)
 			cerr << endl;
 	}
 
