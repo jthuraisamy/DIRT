@@ -10,10 +10,10 @@ I'm writing this tool to learn C++ and get an initial assessment of drivers inst
   - This can be useful to narrow down on drivers that can potentially be used toward LPE.
 - [x] **Retrieval of company names associated with drivers to determine ownership.**
   - This can be useful in target selection to separate third-party drivers from Microsoft drivers.
-- [x] **Resolution of the IRP_MJ_DEVICE_CONTROL function used to handle requests from DeviceIoControl.**
+- [x] **Resolution of the DispatchDeviceControl routine used to handle requests from DeviceIoControl.**
   - This makes it easier to find the function in IDA (versus relying on heuristics in static analysis).
   - The function can be analyzed to enumerate IOCTL codes and perform attack surface analysis.
-- [ ] **Enumeration of the IOCTL codes supported by IRP_MJ_DEVICE_CONTROL.**
+- [ ] **Enumeration of the IOCTL codes supported by DispatchDeviceControl.**
   - There might be an opportunity for symbolic execution like [this](http://jackson.thuraisamy.me/pyexz3-hevd.html), but not sure how robust it can be.
 - [ ] **Enumeration of user-mode drivers that make calls to a given kernel-mode driver.**
 
