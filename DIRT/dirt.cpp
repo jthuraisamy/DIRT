@@ -1,4 +1,4 @@
-﻿// DIRT.cpp : Defines the entry point for the console application.
+// DIRT.cpp : Defines the entry point for the console application.
 //
 
 #pragma comment(lib, "ntdll.lib")
