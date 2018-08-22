@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "global.h"
 #include "objman.h"
@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <winver.h>
 
-#pragma comment(lib, "Mincore.lib")
+#pragma comment(lib, "Version.lib")
 
 class DIRT::Main
 {
