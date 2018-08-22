@@ -8,7 +8,7 @@ I'm writing this tool to learn C++ and get an initial assessment of drivers inst
 
 - [x] **Listing of kernel-mode drivers non-administrative users can interact with via DeviceIoControl.**
   - This can be useful to narrow down on drivers that can potentially be used toward LPE.
-- [ ] **Retrieval of company names associated with drivers to determine ownership.**
+- [x] **Retrieval of company names associated with drivers to determine ownership.**
   - This can be useful in target selection to separate third-party drivers from Microsoft drivers.
 - [x] **Resolution of the IRP_MJ_DEVICE_CONTROL function used to handle requests from DeviceIoControl.**
   - This makes it easier to find the function in IDA (versus relying on heuristics in static analysis).
