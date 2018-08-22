@@ -36,46 +36,38 @@ This should compile with Visual Studio 2015 or greater.
 2. Place [`kldbgdrv.sys`](https://github.com/hfiref0x/WinObjEx64/raw/master/Source/drvstore/kldbgdrv.sys) (found with WinDbg) in the same directory as `DIRT.exe`.
 3. Run `DIRT.exe > output.txt` with administrative privileges.
 
+The `--lp-only` and `--no-msft` switches can be used to filter results.
+
 Below is some sample output to know what to expect:
 
 ```
 DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)
 Repository:  https://github.com/jthuraisamy/DIRT
-Compiled on: Aug 20 2018 00:01:04
+Compiled on: Aug 22 2018 00:01:04
+
+INFO: Hiding Microsoft drivers (--no-msft).
+INFO: Only showing that low-privileged users can interface with (--lp-only).
 
 Capcom: Capcom
-Path: C:\Windows\System32\drivers\Capcom.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF80055750590
+Path: C:\Users\AdminUser\Downloads\Capcom.sys
+DispatchDeviceControl: 0xFFFFF8024C9A0590
+DispatchInternalDeviceControl: 0xFFFFF8024D9B1E80
 Devices: 1
 └── \Device\Htsysm72FB (open DACL, 1 symlinks)
     └── \\.\Global\Htsysm72FB
 
-SynTP: Synaptics TouchPad Driver
-Path: C:\Windows\System32\drivers\SynTP.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF8090FE072B0
+SmbDrvI: SmbDrvI (Synaptics Incorporated)
+Path: C:\WINDOWS\System32\drivers\Smb_driver_Intel.sys
+DispatchDeviceControl: 0xFFFFF808212C72B0
+DispatchInternalDeviceControl: 0xFFFFF808212C72B0
 Devices: 1
-└── \Device\SynTP (open DACL, 1 symlinks)
-    └── \\.\Global\SYNTP
-    
-ETD: ELAN PS/2 Port Input Device
-Path: C:\Windows\System32\drivers\ETD.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF803D3521DC0
-Devices: 1
-└── \Device\ETD (open DACL, 1 symlinks)
-    └── \\.\Global\ETD
-
-rt640x64: Realtek RT640 NT Driver
-Path: C:\Windows\System32\drivers\rt640x64.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF803CE6AFFF0
-Devices: 2
-├── \Device\NDMP2 (open DACL, 1 symlinks)
-│   └── \\.\Global\{02873985-BE00-4DD1-9CBB-C311D97525E7}
-└── \Device\RealTekCard{02873985-BE00-4DD1-9CBB-C311D97525E7} (open DACL, 1 symlinks)
-    └── \\.\Global\RealTekCard{02873985-BE00-4DD1-9CBB-C311D97525E7}
+└── \Device\SmbDriver (open DACL, 1 symlinks)
+    └── \\.\Global\SmbDriver
 
 nvlddmkm: nvlddmkm
 Path: C:\Windows\System32\DriverStore\FileRepository\nvlt.inf_amd64_ed3ba3fb30d4dd86\nvlddmkm.sys
-IRP_MJ_DEVICE_CONTROL: 0xFFFFF803D1A39940
+DispatchDeviceControl: 0xFFFFF80822D074D0
+DispatchInternalDeviceControl: 0xFFFFF80822CB4F10
 Devices: 2
 ├── \Device\NvAdminDevice (open DACL, 1 symlinks)
 │   └── \\.\Global\NvAdminDevice
