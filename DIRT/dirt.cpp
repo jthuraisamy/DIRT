@@ -134,6 +134,18 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 			if (wcscmp(driver.CompanyName, L"Microsoft Corporation") == 0)
 				continue;
 
+		if (lowpriv_accessible_only)
+		{
+			bool is_lowpriv_accessible = false;
+
+			for (DEVICE device : driver.Devices)
+				if ((device.OpenDACL) && (device.SymbolicLinks.size() > 0))
+					is_lowpriv_accessible = true;
+
+			if (!is_lowpriv_accessible)
+				continue;
+		}
+
 		//if (driver.Devices.size() == 0)
 		//	continue;
 
@@ -159,7 +171,7 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 		else
 			wcout << "DispatchInternalDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] << endl;
 
-		wcout << "Devices: " << driver.Devices.size() << endl;
+		wcout << "Devices: " << dec << driver.Devices.size() << endl;
 
 		for (int j = 0; j < driver.Devices.size(); j++)
 		{
@@ -456,6 +468,7 @@ PWCHAR DIRT::Main::GetFileVersionInformationValue(const PWCHAR file_path, const 
 
 int main(int argc, char* argv[])
 {
+	// Allow printing of Unicode characters.
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
 	cerr << "DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)" << endl;
@@ -470,14 +483,17 @@ int main(int argc, char* argv[])
 	{
 		if (strcmp(argv[i], "--lp-only") == 0)
 		{
-			cerr << "INFO: Only showing drivers accessible by non-admins with --lp-only enabled." << endl << endl;
+			cerr << "INFO: Only showing that low-privileged users can interface with (--lp-only)." << endl;
 			lowpriv_accessible_only = true;
 		}
 		else if (strcmp(argv[i], "--no-msft") == 0)
 		{
-			cerr << "INFO: Hiding Microsoft drivers with --no-msft enabled." << endl << endl;
+			cerr << "INFO: Hiding Microsoft drivers (--no-msft)." << endl;
 			no_microsoft = true;
 		}
+
+		if (i == argc - 1)
+			cerr << endl;
 	}
 
 	DIRT::Main dirt;
