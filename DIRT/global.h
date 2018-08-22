@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ntos.h"
 
@@ -13,16 +13,16 @@ namespace DIRT
 	class ObjectManager;
 
 	typedef struct _DEVICE {
-		PWCHAR         ObjectPath;
-		PWCHAR         DriverServiceName;
-		vector<PWCHAR> SymbolicLinks;
+		PTCHAR         ObjectPath;
+		PTCHAR         DriverServiceName;
+		vector<PTCHAR> SymbolicLinks;
 		BOOL           OpenDACL;
 	} DEVICE, *PDEVICE;
 
 	typedef struct _DRIVER {
-		PWCHAR                 ServiceName;
-		PWCHAR                 CompanyName;
-		PWCHAR                 FilePath;
+		PTCHAR                 ServiceName;
+		PTCHAR                 CompanyName;
+		PTCHAR                 FilePath;
 		LPQUERY_SERVICE_CONFIG ServiceConfig;
 		PDRIVER_OBJECT         DriverObject;
 		vector<DEVICE>         Devices;

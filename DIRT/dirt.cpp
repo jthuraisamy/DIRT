@@ -1,4 +1,4 @@
-// DIRT.cpp : Defines the entry point for the console application.
+﻿// DIRT.cpp : Defines the entry point for the console application.
 //
 
 #pragma comment(lib, "ntdll.lib")
@@ -91,7 +91,7 @@ void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 		}
 		else if (wcscmp(ptr_objdir_info->TypeName.Buffer, L"Device") == 0)
 		{
-			PWCHAR driver_service_name = m_object_manager.GetDriverServiceNameFromDevice(ptr_directory_path, ptr_objdir_info->Name.Buffer);
+			PTCHAR driver_service_name = m_object_manager.GetDriverServiceNameFromDevice(ptr_directory_path, ptr_objdir_info->Name.Buffer);
 
 			if (driver_service_name == nullptr)
 				continue;
@@ -100,7 +100,7 @@ void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 
 			device.DriverServiceName = driver_service_name;
 
-			device.ObjectPath = (PWCHAR)malloc(MAX_PATH);
+			device.ObjectPath = (PTCHAR)malloc(MAX_PATH);
 			swprintf(device.ObjectPath, MAX_PATH, L"%s\\%s", ptr_directory_path, ptr_objdir_info->Name.Buffer);
 			wcerr << L"Querying device: " << device.ObjectPath << setw(100) << "\r";
 			wcerr.flush();
@@ -190,7 +190,7 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 
 			if (device.SymbolicLinks.size() > 0)
 			{
-				for (PWCHAR symbolic_link : device.SymbolicLinks)
+				for (PTCHAR symbolic_link : device.SymbolicLinks)
 				{
 					if (j == driver.Devices.size() - 1)
 						wcout << L"    └── " << L"\\\\.\\Global\\" << symbolic_link << endl;
