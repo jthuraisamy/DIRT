@@ -49,7 +49,7 @@ INFO: Hiding Microsoft drivers (--no-msft).
 INFO: Only showing that low-privileged users can interface with (--lp-only).
 
 Capcom: Capcom
-Path: C:\Users\AdminUser\Downloads\Capcom.sys
+Path: C:\Windows\System32\Capcom.sys
 DispatchDeviceControl: 0xFFFFF8024C9A0590
 DispatchInternalDeviceControl: 0xFFFFF8024D9B1E80
 Devices: 1
