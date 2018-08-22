@@ -84,7 +84,7 @@ PWCHAR DIRT::ObjectManager::GetDriverFileName(const PDRIVER_OBJECT ptr_driver_ob
 			mbstowcs_s(
 				&return_value,
 				nt_path,
-				MAX_PATH / 2,
+				MAX_PATH,
 				(const char*)ptr_module->FullPathName,
 				strlen((const char*)ptr_module->FullPathName)
 			);

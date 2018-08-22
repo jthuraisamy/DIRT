@@ -21,9 +21,10 @@ namespace DIRT
 
 	typedef struct _DRIVER {
 		PTCHAR                 ServiceName;
+		PTCHAR                 CompanyName;
 		PTCHAR                 FilePath;
 		LPQUERY_SERVICE_CONFIG ServiceConfig;
-		PVOID                  IrpMjDeviceControl;
+		PDRIVER_OBJECT         DriverObject;
 		vector<DEVICE>         Devices;
 	} DRIVER, *PDRIVER;
 }

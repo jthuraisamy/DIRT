@@ -7,6 +7,9 @@
 #include <iomanip>
 #include <io.h>
 #include <fcntl.h>
+#include <winver.h>
+
+#pragma comment(lib, "Mincore.lib")
 
 class DIRT::Main
 {
@@ -30,7 +33,7 @@ public:
 	void                   PopulateDrivers();
 	void                   PopulateDevices();
 	void                   PopulateDevices(const PWCHAR ptr_directory_path);
-	void                   ExportHumanReadable(const bool is_lowpriv_accessible);
+	void                   ExportHumanReadable(const bool lowpriv_accessible_only, const bool no_microsoft);
 	void                   ExportCSV();
 	void                   ExportJSON();
 
@@ -40,4 +43,5 @@ private:
 	int                    GetObjectDACL(const PWCHAR ptr_path, _Out_ PEXPLICIT_ACCESS* ptr_entries, _Out_ PULONG ptr_entry_count);
 	void                   PopulateDeviceToSymLinks(vector<PDEVICE> ptr_devices);
 	PWCHAR                 GetLinkTarget(const HANDLE hnd_root_directory, const PUNICODE_STRING ptr_object_name);
+	PWCHAR                 GetFileVersionInformationValue(const PWCHAR file_path, const PWCHAR property);
 };

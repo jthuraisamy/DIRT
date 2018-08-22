@@ -43,10 +43,11 @@ void DIRT::Main::PopulateDrivers()
 
 			driver.ServiceName = ptr_objdir_info->Name.Buffer;
 			driver.FilePath = m_object_manager.GetDriverFileName(driver.ServiceName);
+			driver.CompanyName = GetFileVersionInformationValue(&driver.FilePath[4], L"CompanyName");
 			driver.ServiceConfig = GetDriverServiceConfig(driver.ServiceName);
-			driver.IrpMjDeviceControl = m_object_manager.GetDriverMajorFunction(driver.ServiceName, IRP_MJ_DEVICE_CONTROL);
+			driver.DriverObject = m_object_manager.GetDriverObject(L"\\Driver", driver.ServiceName);
 
-			wcerr << L"Querying driver: " << driver.ServiceName << setw(80) << "\r";
+			wcerr << L"Querying driver: " << driver.ServiceName << setw(100) << "\r";
 			wcerr.flush();
 			
 			for (DEVICE ptr_device : m_devices)
@@ -101,7 +102,7 @@ void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 
 			device.ObjectPath = (PTCHAR)malloc(MAX_PATH);
 			swprintf(device.ObjectPath, MAX_PATH, L"%s\\%s", ptr_directory_path, ptr_objdir_info->Name.Buffer);
-			wcerr << L"Querying device: " << device.ObjectPath << setw(80) << "\r";
+			wcerr << L"Querying device: " << device.ObjectPath << setw(100) << "\r";
 			wcerr.flush();
 
 			ULONG entry_count = 0;
@@ -121,27 +122,42 @@ void DIRT::Main::PopulateDevices(const PWCHAR ptr_directory_path)
 /// <summary>
 /// Print out driver info in human readable format.
 /// </summary>
-/// <param name="is_lowpriv_accessible">True if low-priv users can create a handle.</param>
-void DIRT::Main::ExportHumanReadable(const bool is_lowpriv_accessible)
+/// <param name="lowpriv_accessible_only">True if low-priv users can create a handle.</param>
+/// <param name="no_microsoft">Exclude Microsoft drivers.</param>
+void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const bool no_microsoft)
 {
 	for (int i = 0; i < m_drivers.size(); i++)
 	{
 		DRIVER driver = m_drivers[i];
 
+		if (no_microsoft)
+			if (wcscmp(driver.CompanyName, L"Microsoft Corporation") == 0)
+				continue;
+
 		//if (driver.Devices.size() == 0)
 		//	continue;
 
 		if (driver.ServiceConfig != nullptr)
-			wcout << driver.ServiceName << ": " << driver.ServiceConfig->lpDisplayName << endl;
+			wcout << driver.ServiceName << ": " << driver.ServiceConfig->lpDisplayName;
 		else
-			wcout << driver.ServiceName << endl;
+			wcout << driver.ServiceName;
+
+		if (driver.CompanyName != nullptr)
+			wcout << " (" << driver.CompanyName << ")" << endl;
+		else
+			wcout << endl;
 
 		wcout << "Path: " << &driver.FilePath[4] << endl;
 		
-		if (driver.IrpMjDeviceControl == nullptr)
-			wcout << "IRP_MJ_DEVICE_CONTROL: N/A" << endl;
+		if (driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] == nullptr)
+			wcout << "DispatchDeviceControl: N/A" << endl;
 		else
-			wcout << "IRP_MJ_DEVICE_CONTROL: 0x" << hex << driver.IrpMjDeviceControl << endl;
+			wcout << "DispatchDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] << endl;
+
+		if (driver.DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] == nullptr)
+			wcout << "DispatchInternalDeviceControl: N/A" << endl;
+		else
+			wcout << "DispatchInternalDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] << endl;
 
 		wcout << "Devices: " << driver.Devices.size() << endl;
 
@@ -405,7 +421,40 @@ PWCHAR DIRT::Main::GetLinkTarget(const HANDLE hnd_root_directory, const PUNICODE
 	return target_name.Buffer;
 }
 
-int main(int argc, wchar_t* argv[])
+/// <summary>
+/// Return a value for a version-information property of a given file.
+/// </summary>
+/// <param name="file_path"></param>
+/// <param name="property">(e.g. Company)</param>
+/// <returns></returns>
+PWCHAR DIRT::Main::GetFileVersionInformationValue(const PWCHAR file_path, const PWCHAR property) {
+	DWORD info_size = 0;
+	DWORD size_handle = NULL;
+	PVOID version_info = nullptr;
+	UINT buffer_len = 0;
+	PWCHAR value = (PWCHAR)malloc(MAX_PATH);
+	struct {WORD language; WORD code_page;} *translation_buffer;
+	wchar_t sub_block[128] = { 0 };
+
+	if (info_size = GetFileVersionInfoSize(file_path, &size_handle))
+	{
+		version_info = malloc(info_size);
+
+		if (!GetFileVersionInfo(file_path, NULL, info_size, version_info))
+			return nullptr;
+
+		if (VerQueryValue(version_info, TEXT("\\VarFileInfo\\Translation"), (LPVOID*)&translation_buffer, &buffer_len))
+		{
+			swprintf(sub_block, 128, L"\\StringFileInfo\\%04x%04x\\%s", translation_buffer->language, translation_buffer->code_page, property);
+			VerQueryValue(version_info, sub_block, (LPVOID*)&value, &buffer_len);
+			return value;
+		}
+	}
+
+	return nullptr;
+}
+
+int main(int argc, char* argv[])
 {
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
@@ -413,14 +462,31 @@ int main(int argc, wchar_t* argv[])
 	cerr << "Repository:  https://github.com/jthuraisamy/DIRT" << endl;
 	cerr << "Compiled on: " << __DATE__ << " " << __TIME__ << endl << endl;
 	
+	// Parse command-line arguments.
+	bool lowpriv_accessible_only = false;
+	bool no_microsoft = false;
+
+	for (int i = 1; i < argc; i++)
+	{
+		if (strcmp(argv[i], "--lp-only") == 0)
+		{
+			cerr << "INFO: Only showing drivers accessible by non-admins with --lp-only enabled." << endl << endl;
+			lowpriv_accessible_only = true;
+		}
+		else if (strcmp(argv[i], "--no-msft") == 0)
+		{
+			cerr << "INFO: Hiding Microsoft drivers with --no-msft enabled." << endl << endl;
+			no_microsoft = true;
+		}
+	}
+
 	DIRT::Main dirt;
 	dirt.PopulateDrivers();
 
-	dirt.ExportHumanReadable(false);
-	//dirt.ExportCSV();
+	dirt.ExportHumanReadable(lowpriv_accessible_only, no_microsoft);
 
+	cerr << "Complete!" << setw(100) << endl;
 	cerr.flush();
-	cerr << "Complete!" << setw(80) << endl;
 
 	return 0;
 }
