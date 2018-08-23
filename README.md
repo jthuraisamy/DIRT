@@ -46,20 +46,18 @@ Repository:  https://github.com/jthuraisamy/DIRT
 Compiled on: Aug 22 2018 00:01:04
 
 INFO: Hiding Microsoft drivers (--no-msft).
-INFO: Only showing that low-privileged users can interface with (--lp-only).
+INFO: Only showing drivers that low-privileged users can interface with (--lp-only).
 
 Capcom: Capcom
 Path: C:\Windows\System32\Capcom.sys
 DispatchDeviceControl: 0xFFFFF8024C9A0590
-DispatchInternalDeviceControl: 0xFFFFF8024D9B1E80
 Devices: 1
 └── \Device\Htsysm72FB (open DACL, 1 symlinks)
     └── \\.\Global\Htsysm72FB
 
 SmbDrvI: SmbDrvI (Synaptics Incorporated)
-Path: C:\WINDOWS\System32\drivers\Smb_driver_Intel.sys
+Path: C:\WINDOWS\System32\drivers\Smb_driver_Intel.sys - Hooked by Wdf01000 (Microsoft Corporation)
 DispatchDeviceControl: 0xFFFFF808212C72B0
-DispatchInternalDeviceControl: 0xFFFFF808212C72B0
 Devices: 1
 └── \Device\SmbDriver (open DACL, 1 symlinks)
     └── \\.\Global\SmbDriver
@@ -67,7 +65,6 @@ Devices: 1
 nvlddmkm: nvlddmkm
 Path: C:\Windows\System32\DriverStore\FileRepository\nvlt.inf_amd64_ed3ba3fb30d4dd86\nvlddmkm.sys
 DispatchDeviceControl: 0xFFFFF80822D074D0
-DispatchInternalDeviceControl: 0xFFFFF80822CB4F10
 Devices: 2
 ├── \Device\NvAdminDevice (open DACL, 1 symlinks)
 │   └── \\.\Global\NvAdminDevice
