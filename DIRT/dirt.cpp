@@ -1,4 +1,4 @@
-﻿// DIRT.cpp : Defines the entry point for the console application.
+// DIRT.cpp : Defines the entry point for the console application.
 //
 
 #pragma comment(lib, "ntdll.lib")
@@ -10,6 +10,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+
+using namespace std;
 
 DIRT::Main::Main()
 {
@@ -147,9 +149,6 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 				continue;
 		}
 
-		//if (driver.Devices.size() == 0)
-		//	continue;
-
 		if (driver.ServiceConfig != nullptr)
 			wcout << driver.ServiceName << ": " << driver.ServiceConfig->lpDisplayName;
 		else
@@ -163,14 +162,19 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 		wcout << "Path: " << &driver.FilePath[4] << endl;
 		
 		if (driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] == nullptr)
+		{
 			wcout << "DispatchDeviceControl: N/A" << endl;
+		}
 		else
-			wcout << "DispatchDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] << endl;
+		{
+			wcout << "DispatchDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL];
 
-		if (driver.DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] == nullptr)
-			wcout << "DispatchInternalDeviceControl: N/A" << endl;
-		else
-			wcout << "DispatchInternalDeviceControl: 0x" << hex << driver.DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] << endl;
+			DRIVER dispatch_owner = GetDispatchRoutineOwner(driver.DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL]);
+			if ((wcscmp(dispatch_owner.ServiceName, driver.ServiceName) != 0))
+				wcout << " - Hooked by " << dispatch_owner.ServiceName << " (" << dispatch_owner.CompanyName << ")" << endl;
+			else
+				wcout << endl;
+		}
 
 		wcout << "Devices: " << dec << driver.Devices.size() << endl;
 
@@ -178,13 +182,10 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 		{
 			DEVICE device = driver.Devices[j];
 
-			//if ((device.SymbolicLinks.size() == 0) || (device.OpenDACL == false))
-			//	continue;
-
 			if (j == driver.Devices.size() - 1)
-				wcout << L"└── " << device.ObjectPath;
+				wcout << L"\u2514\u2500\u2500 " << device.ObjectPath;
 			else
-				wcout << L"├── " << device.ObjectPath;
+				wcout << L"\u251C\u2500\u2500 " << device.ObjectPath;
 
 			wcout << " (" << (device.OpenDACL ? "open DACL" : "closed DACL") << ", " << device.SymbolicLinks.size() << " symlinks)" << endl;
 
@@ -193,9 +194,9 @@ void DIRT::Main::ExportHumanReadable(const bool lowpriv_accessible_only, const b
 				for (PTCHAR symbolic_link : device.SymbolicLinks)
 				{
 					if (j == driver.Devices.size() - 1)
-						wcout << L"    └── " << L"\\\\.\\Global\\" << symbolic_link << endl;
+						wcout << L"    \u2514\u2500\u2500 " << L"\\\\.\\Global\\" << symbolic_link << endl;
 					else
-						wcout << L"│   └── " << L"\\\\.\\Global\\" << symbolic_link << endl;
+						wcout << L"\u2502   \u2514\u2500\u2500 " << L"\\\\.\\Global\\" << symbolic_link << endl;
 				}
 			}
 		}
@@ -467,12 +468,24 @@ PWCHAR DIRT::Main::GetFileVersionInformationValue(const PWCHAR file_path, const 
 	return nullptr;
 }
 
+DIRT::DRIVER DIRT::Main::GetDispatchRoutineOwner(const PVOID ptr_dispatch_routine)
+{
+	for (DRIVER driver : m_drivers)
+	{
+		ULONGLONG ptr_driver_start = (ULONGLONG)driver.DriverObject->DriverStart;
+		ULONGLONG ptr_driver_end = ptr_driver_start + (ULONGLONG)driver.DriverObject->DriverSize;
+
+		if (((ULONGLONG)ptr_dispatch_routine >= ptr_driver_start) && ((ULONGLONG)ptr_dispatch_routine <= ptr_driver_end))
+			return driver;
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	// Allow printing of Unicode characters.
 	_setmode(_fileno(stdout), _O_U16TEXT);
 
-	cerr << "DIRT v0.1.0: Driver Initial Reconnaisance Tool (@Jackson_T)" << endl;
+	cerr << "DIRT v0.1.1: Driver Initial Reconnaisance Tool (@Jackson_T)" << endl;
 	cerr << "Repository:  https://github.com/jthuraisamy/DIRT" << endl;
 	cerr << "Compiled on: " << __DATE__ << " " << __TIME__ << endl << endl;
 	

@@ -44,4 +44,5 @@ private:
 	void                   PopulateDeviceToSymLinks(vector<PDEVICE> ptr_devices);
 	PWCHAR                 GetLinkTarget(const HANDLE hnd_root_directory, const PUNICODE_STRING ptr_object_name);
 	PWCHAR                 GetFileVersionInformationValue(const PWCHAR file_path, const PWCHAR property);
+	DRIVER                 GetDispatchRoutineOwner(const PVOID ptr_dispatch_routine);
 };
