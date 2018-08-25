@@ -493,6 +493,17 @@ int main(int argc, char* argv[])
 	bool lowpriv_accessible_only = false;
 	bool no_microsoft = false;
 
+	if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0))
+	{
+		cerr << "Usage: " << argv[0] << " [-h] [--lp-only] [--no-msft]" << endl << endl;
+		cerr << "Optional arguments:" << endl;
+		cerr << "  -h, --help        Show this help message and exit." << endl;
+		cerr << "  --lp-only         Show potential LPE candidates." << endl;
+		cerr << "  --no-msft         Hide Microsoft drivers." << endl;
+
+		exit(0);
+	}
+
 	for (int i = 1; i < argc; i++)
 	{
 		if (strcmp(argv[i], "--lp-only") == 0)
