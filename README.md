@@ -72,7 +72,7 @@ Devices: 2
 
 There is also a CSV output available using `DIRT::Main::ExportCSV()`:
 
-![](https://i.imgur.com/lTefDUR.png)
+![CSV](https://i.imgur.com/lTefDUR.png)
 
 ## Authors
 
